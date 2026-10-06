@@ -28,11 +28,11 @@
   --fail-bg: #fbe0dc;
   --fail-line: #df8a7d;
   --fail-ink: #9b2c1d;
-  --heat-0: #f8e3c4;
-  --heat-1: #fbf0dc;
-  --heat-2: #f7f7f2;
-  --heat-3: #e3f3e8;
-  --heat-4: #c9ead4;
+  --heat-0: #ffffff;
+  --heat-1: #eef3fa;
+  --heat-2: #dce7f5;
+  --heat-3: #c3d6ee;
+  --heat-4: #a6c1e4;
   --net-bar: #8a94a3;
   --hatch: rgb(140 100 40 / 0.2);
   --conf-high: #2f8f5b;
@@ -76,11 +76,11 @@
     --fail-bg: #4a1e18;
     --fail-line: #a8493b;
     --fail-ink: #ffb3a6;
-    --heat-0: #4a3614;
-    --heat-1: #3a2f1c;
-    --heat-2: #222a35;
-    --heat-3: #1d3a29;
-    --heat-4: #1f4d32;
+    --heat-0: #1a2029;
+    --heat-1: #1e2b3d;
+    --heat-2: #223551;
+    --heat-3: #284268;
+    --heat-4: #2e5183;
     --net-bar: #6b7686;
     --hatch: rgb(230 190 120 / 0.18);
     --conf-high: #4fbf85;
@@ -1649,4 +1649,23 @@ button.primary {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* Rank among the planes that fit: grey text, never a color */
+.tile-col-rank {
+  font-size: 11px;
+  color: var(--muted);
+}
+.kv-rank {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.cmp-scale {
+  width: 36px !important;
+  background: linear-gradient(90deg, var(--heat-0), var(--heat-4));
+}
+.matrix td.cell-fail {
+  background: var(--fail-bg);
 }

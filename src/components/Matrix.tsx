@@ -14,13 +14,13 @@ interface Props {
 
 const GROUPS = [...new Set(COLUMNS.map((c) => c.group))]
 
-/** Shade from 0 (worst) to 1 (best): five steps from amber to green. */
+/** Comparison shade from 0 (worst) to 1 (best): five steps of one neutral blue, lighter to darker. */
 function shade(t: number | undefined) {
   if (t == null) return ''
   return `heat-${Math.min(4, Math.floor(t * 5))}`
 }
 
-/** Every element of every plane in one grid. Each column is shaded from best (green) to lowest (amber) within itself. */
+/** Every element of every plane in one grid. Blue shading compares the planes within each column; red marks a failed need. */
 export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOpen }: Props) {
   const fitting = rows.filter((r) => r.fits)
   // Difference view: each cost part against the lowest value among the jets that fit.

@@ -1,4 +1,4 @@
-import type { FitReason, JetResult } from '../engine/index.ts'
+import type { EffectiveRequirements, FitReason, JetResult } from '../engine/index.ts'
 import { feetInches, num } from '../lib/format.ts'
 
 /** How a value compares: good (best third), low (lowest third), fail (does not meet a need), plain (middle or not ranked). */
@@ -341,4 +341,45 @@ export function toneFor(c: Column, t: number | undefined, failing: boolean, r?: 
   if (t >= 2 / 3) return 'good'
   if (t <= 1 / 3) return 'low'
   return 'plain'
+}
+
+/**
+ * Color for "does it meet your need": green meets it, red fails it, plain when you have not set a need for that item.
+ * Comparison with the other planes is never shown as a color on cards; see rankAmong.
+ */
+export function needTone(key: ColumnKey, r: JetResult, req: EffectiveRequirements): Tone {
+  const failing = failingColumns(r)
+  if (failing.has(key)) return 'fail'
+  switch (key) {
+    case 'seats':
+      return req.seats > 0 ? 'good' : 'plain'
+    case 'bags':
+      return req.bagSpaceCuFt > 0 ? 'good' : 'plain'
+    case 'nonstop':
+      return req.maxFuelStopTrips != null ? 'good' : 'plain'
+    case 'cabinHeight':
+    case 'standUp':
+      return req.standUpCabin ? 'good' : 'plain'
+    case 'flatFloor':
+      return req.flatFloor ? 'good' : 'plain'
+    case 'lavatory':
+      return req.enclosedLavatory ? 'good' : 'plain'
+    case 'takeoff':
+      return req.runwayCheck ? 'good' : 'plain'
+    default:
+      return 'plain'
+  }
+}
+
+const ordinal = (n: number) => {
+  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th'
+  return `${n}${s}`
+}
+
+/** Rank among the planes that fit, for example "2nd of 6". Ties share a rank. Null for yes/no items and planes that do not fit. */
+export function rankAmong(c: Column, r: JetResult, fitting: JetResult[]): string | null {
+  if (c.better === 'yes' || !r.fits || fitting.length < 2) return null
+  const v = c.value(r)
+  const better = fitting.filter((o) => (c.better === 'higher' ? c.value(o) > v : c.value(o) < v)).length
+  return `${ordinal(better + 1)} of ${fitting.length}`
 }

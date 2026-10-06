@@ -1,7 +1,7 @@
 import type { Tone } from './columns.ts'
 import { CertaintyDots, type Level } from './Certainty.tsx'
 
-const TONE_WORD: Record<Tone, string> = { good: 'among the best', plain: '', low: 'among the lowest', fail: 'does not meet your need' }
+const TONE_WORD: Record<Tone, string> = { good: 'meets your need', plain: '', low: '', fail: 'fails your need' }
 
 /** A labeled chip: the label in plain text, then the value. The color adds to the words, never replaces them. */
 export function Chip({ label, value, tone = 'plain', certainty, onClick }: { label: string; value: string; tone?: Tone; certainty?: Level | null; onClick?: () => void }) {
@@ -26,19 +26,23 @@ export function Chip({ label, value, tone = 'plain', certainty, onClick }: { lab
   )
 }
 
-/** The small key that explains the chip and cell colors. */
-export function ToneKey() {
+/** Color key: green and red only ever mean meets or fails your need. The matrix adds its blue comparison scale. */
+export function ToneKey({ matrix }: { matrix: boolean }) {
   return (
     <div className="tone-key" aria-label="Color key">
       <span>
-        <i className="tone-good" /> Best third
+        <i className="tone-good" /> Meets your need
       </span>
       <span>
-        <i className="tone-low" /> Lowest third
+        <i className="tone-fail" /> Fails your need
       </span>
-      <span>
-        <i className="tone-fail" /> Fails a need
-      </span>
+      {matrix ? (
+        <span>
+          <i className="cmp-scale" /> Darker blue · better among the planes that fit
+        </span>
+      ) : (
+        <span className="muted">Rank · among the planes that fit</span>
+      )}
     </div>
   )
 }

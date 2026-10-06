@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import type { Airport, AssumptionRow, Changes, JetResult } from '../engine/index.ts'
+import type { Airport, AssumptionRow, Changes, EffectiveRequirements, JetResult } from '../engine/index.ts'
 import { money, moneyRange, num, rawValue } from '../lib/format.ts'
 import { Chip } from './Chip.tsx'
-import { COLUMNS, failingColumns, toneFor, type ColumnKey } from './columns.ts'
+import { COLUMNS, needTone, rankAmong, type ColumnKey } from './columns.ts'
 import { CertaintyDots, ConfidenceBar, type ConfidenceOf } from './Certainty.tsx'
 import { PARTS } from './costParts.tsx'
 
 interface Props {
   result: JetResult
-  position: Partial<Record<ColumnKey, number>>
+  requirements: EffectiveRequirements
+  fitting: JetResult[]
   confidenceOf: ConfidenceOf
   rows: AssumptionRow[]
   changes: Changes
@@ -60,7 +61,7 @@ function PriceEdit({ r, changes, setChange }: Pick<Props, 'changes' | 'setChange
 }
 
 /** The expanded plane: every value, the cost parts, the flying, and the source of each number. */
-export function JetPanel({ result: r, position, confidenceOf, rows, changes, airports, setChange, openLibrary, onClose }: Props) {
+export function JetPanel({ result: r, requirements, fitting, confidenceOf, rows, changes, airports, setChange, openLibrary, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     document.addEventListener('keydown', onKey)
@@ -70,7 +71,6 @@ export function JetPanel({ result: r, position, confidenceOf, rows, changes, air
   const t = r.typical
   const b = r.breakdown
   const costs = PARTS.reduce((s, p) => s + b[p.key], 0)
-  const failing = failingColumns(r)
   const used = new Set(r.usedAssumptions)
   const sources = rows.filter((row) => used.has(row.id))
   const code = (ident: string) => airports.get(ident)?.code ?? ident
@@ -183,7 +183,8 @@ export function JetPanel({ result: r, position, confidenceOf, rows, changes, air
                   {g.keys.map((k) => {
                     const c = COLUMNS.find((x) => x.key === k)!
                     const src = c.source(r)
-                    const tone = toneFor(c, position[k], failing.has(k))
+                    const tone = needTone(k, r, requirements)
+                    const place = rankAmong(c, r, fitting)
                     return (
                       <tr key={k}>
                         <th>{c.label}</th>
@@ -197,6 +198,7 @@ export function JetPanel({ result: r, position, confidenceOf, rows, changes, air
                             c.chip(r)
                           )}
                           <CertaintyDots level={confidenceOf(src)} />
+                          {place && <span className="kv-rank">{place}</span>}
                         </td>
                       </tr>
                     )

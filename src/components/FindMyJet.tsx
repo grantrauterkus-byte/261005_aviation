@@ -125,7 +125,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
             </button>
           </div>
         )}
-        <ToneKey />
+        <ToneKey matrix={view === 'matrix'} />
         <CertaintyKey />
       </div>
 
@@ -142,7 +142,8 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
               key={r.jet.id}
               rank={r.fits ? sorted.filter((x) => x.fits).indexOf(r) + 1 : null}
               result={r}
-              position={pos.get(r.jet.id) ?? {}}
+              requirements={results.requirements}
+              fitting={results.fitting}
               confidenceOf={confidenceOf}
               netScale={netScale}
               onOpen={() => setOpenJet(r.jet.id)}
@@ -156,7 +157,8 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
       {open && (
         <JetPanel
           result={open}
-          position={pos.get(open.jet.id) ?? {}}
+          requirements={results.requirements}
+          fitting={results.fitting}
           confidenceOf={confidenceOf}
           rows={assumptions}
           changes={changes}

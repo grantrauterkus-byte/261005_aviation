@@ -184,3 +184,16 @@ The owner asked that data quality not appear as one more chip, as if it were a f
 ## Follow-up: manufacturer names
 
 Logos are trademarks, so each card and the expanded view show the manufacturer's name as plain text above the jet name (Cessna, Bombardier, Learjet, Hawker, Gulfstream, Embraer). The names are stored in a new `manufacturer` column on `jets` (migration `20261006113507_jet_manufacturer.sql`) and set by the load script.
+
+## Follow-up: colors mean one thing
+
+The owner did not want "better than the others" and "meets my need" sharing one color system.
+
+**Changed:**
+- **Cards:** colors now mean only meets your need (green) or fails it (red), and no color when no need applies.
+  - Seats and bag space always have a need, from the trips.
+  - Nonstop trips are colored only with a fuel-stop limit; cabin height only with "Stand-up cabin" ticked.
+  - Range and cruise speed are never colored.
+- **Ranks:** comparison with the other jets is shown as grey rank text in each cell (for example "2nd of 6") and in the expanded view.
+- **Matrix:** comparison shading is now one neutral blue, darker for better; failed needs stay red.
+- **Color key:** now reads "Meets your need · Fails your need", plus the blue scale in the matrix.

@@ -1,5 +1,5 @@
-import type { JetResult } from '../engine/index.ts'
-import { COLUMN, failingColumns, toneFor, type ColumnKey } from './columns.ts'
+import type { EffectiveRequirements, JetResult } from '../engine/index.ts'
+import { COLUMN, needTone, rankAmong, type ColumnKey } from './columns.ts'
 import { Chip } from './Chip.tsx'
 import { CertaintyDots, type ConfidenceOf } from './Certainty.tsx'
 import { NetBar, type NetScale } from './costParts.tsx'
@@ -13,15 +13,15 @@ const SHORT_VALUE: Partial<Record<ColumnKey, (r: JetResult) => string>> = {
 interface Props {
   rank: number | null
   result: JetResult
-  position: Partial<Record<ColumnKey, number>>
+  requirements: EffectiveRequirements
+  fitting: JetResult[]
   confidenceOf: ConfidenceOf
   netScale: NetScale
   onOpen: () => void
 }
 
 /** One row per plane: class stripe, name, three figures, the 5-year total as a bar on a shared axis, and six fixed columns. Click opens the full view. */
-export function JetTile({ rank, result: r, position, confidenceOf, netScale, onOpen }: Props) {
-  const failing = failingColumns(r)
+export function JetTile({ rank, result: r, requirements, fitting, confidenceOf, netScale, onOpen }: Props) {
   // Seats and bag space show their need in the column itself, for example "7 · need 8".
   const reasonFor = (k: ColumnKey) => r.reasons.find((x) => (x.key === 'seats' && k === 'seats') || (x.key === 'bags' && k === 'bags'))
   // Reasons that have no column of their own (runway, must-haves) show as red chips below the columns.
@@ -66,7 +66,8 @@ export function JetTile({ rank, result: r, position, confidenceOf, netScale, onO
           {TILE_COLUMNS.map((k) => {
             const c = COLUMN[k]
             const reason = reasonFor(k)
-            const tone = failing.has(k) ? 'fail' : k === 'nonstop' ? (r.tripsNonstop === r.tripsTotal ? 'good' : 'low') : toneFor(c, position[k], false, r)
+            const tone = needTone(k, r, requirements)
+            const place = rankAmong(c, r, fitting)
             return (
               <span key={k} className={`tile-col tone-${tone}`}>
                 <span className="tile-col-k">{c.label}</span>
@@ -74,6 +75,7 @@ export function JetTile({ rank, result: r, position, confidenceOf, netScale, onO
                   {reason ? reason.value : (SHORT_VALUE[k]?.(r) ?? c.chip(r))}
                   <CertaintyDots level={confidenceOf(c.source(r))} />
                 </span>
+                {place && <span className="tile-col-rank">{place}</span>}
               </span>
             )
           })}
@@ -84,7 +86,7 @@ export function JetTile({ rank, result: r, position, confidenceOf, netScale, onO
             {otherReasons.map((x) => (
               <Chip key={`${x.key}-${x.label}`} label={x.label} value={x.value} tone="fail" certainty={confidenceOf(x.assumptionId)} />
             ))}
-            {t.charterLimited && <Chip label="Charter capped" value={`${t.charterHours} hours`} tone="low" />}
+            {t.charterLimited && <Chip label="Charter capped" value={`${t.charterHours} hours`} />}
           </span>
         )}
       </span>
