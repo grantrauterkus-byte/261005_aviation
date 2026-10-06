@@ -4,7 +4,7 @@ import { supabase } from './supabase.ts'
 const AIRPORT_COLS = 'ident,code,name,municipality,latitude,longitude,longest_runway_ft'
 
 export async function fetchJets(): Promise<Jet[]> {
-  const { data, error } = await supabase.from('jets').select('id,name,class,sort_order,most_sold_build_years').order('sort_order')
+  const { data, error } = await supabase.from('jets').select('id,name,class,sort_order,most_sold_build_years,manufacturer').order('sort_order')
   if (error) throw error
   return data as Jet[]
 }

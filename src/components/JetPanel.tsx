@@ -81,6 +81,7 @@ export function JetPanel({ result: r, position, confidenceOf, rows, changes, air
         <header className="drawer-head">
           <span className={`tile-band ${r.jet.class === 'Midsize' ? 'band-mid' : 'band-super'}`} aria-hidden="true" />
           <div>
+            {r.jet.manufacturer && <span className="maker">{r.jet.manufacturer}</span>}
             <h2>{r.jet.name}</h2>
             <div className="drawer-sub">
               <span className={`class-tag ${r.jet.class === 'Midsize' ? 'band-mid' : 'band-super'}`}>{r.jet.class}</span>

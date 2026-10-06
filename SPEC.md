@@ -30,7 +30,7 @@ Redesigned October 2026 after the tow CRM's layout. No sentences built by the ap
 - **Summary bar:** the inputs shown as labeled chips (Home, Trips, Seats, Bags, Runway check, Range margin, Charter, any must-haves), with "Edit" opening the full inputs in a side panel.
 - A header label: "X of 10 fit".
 - **Two views, one sort:** Tiles or Matrix. The sort menu (and clicking a matrix column) sorts by any element.
-- **Tiles:** one row per jet. A colored stripe for the class, the name, build years, and three figures: 5-year total, cost per hour you fly, purchase price.
+- **Tiles:** one row per jet. A colored stripe for the class, the manufacturer's name as plain text above the jet name (no logos), the name, build years, and three figures: 5-year total, cost per hour you fly, purchase price.
   - **5-year total bar:** one plain bar, no colors or segments, showing the 5-year total (after charter income) from $0, on the same x axis for every tile. The total is written at the end of the bar, and the axis below has tick labels and its unit ("5-year total, $ million").
   - **Fixed columns:** the same six labeled cells, in the same position on every tile: nonstop trips, range, seats, bag space, cabin height, cruise speed. Green means the best third of the jets that fit, amber the lowest third, red fails a need; seats and bag space show their need when they fail (for example "7 · need 8").
   - Jets that don't fit are greyed out. Failures without a column of their own show as red chips below the columns (for example "Runway PWK · 5,001 ft · needs 5,250 ft", "Flat floor · No").

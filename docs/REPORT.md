@@ -180,3 +180,7 @@ The owner asked that data quality not appear as one more chip, as if it were a f
 **Checked** in a browser with a throwaway login, removed afterwards: desktop and phone, no cut-off values, no errors. All 36 tests pass.
 
 **Then changed at the owner's request:** the segmented cost bar with hatched charter income was confusing. Each tile now has one plain bar for the 5-year total (after charter income), starting from $0 on the same scale for every tile. The total is written at the end of the bar, with a labeled axis in $ million below it. The cost parts are still in the expanded view.
+
+## Follow-up: manufacturer names
+
+Logos are trademarks, so each card and the expanded view show the manufacturer's name as plain text above the jet name (Cessna, Bombardier, Learjet, Hawker, Gulfstream, Embraer). The names are stored in a new `manufacturer` column on `jets` (migration `20261006113507_jet_manufacturer.sql`) and set by the load script.

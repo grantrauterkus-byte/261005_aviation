@@ -1635,3 +1635,18 @@ button.primary {
 .sources-table td.nowrap {
   white-space: normal;
 }
+
+/* Manufacturer name as plain text above the jet name (no logos) */
+.tile-name-block {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.maker {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

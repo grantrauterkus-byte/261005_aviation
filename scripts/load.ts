@@ -24,18 +24,18 @@ if (!url || !key) {
 }
 const db = createClient(url, key, { auth: { persistSession: false } })
 
-// Jet classes and display order, from DATA.md.
-const JETS: [string, 'Midsize' | 'Super-midsize'][] = [
-  ['Citation XLS', 'Midsize'],
-  ['Citation Latitude', 'Midsize'],
-  ['Citation Sovereign', 'Midsize'],
-  ['Hawker 800XP', 'Midsize'],
-  ['Learjet 60', 'Midsize'],
-  ['Challenger 300', 'Super-midsize'],
-  ['Challenger 350', 'Super-midsize'],
-  ['Gulfstream G280', 'Super-midsize'],
-  ['Embraer Praetor 600', 'Super-midsize'],
-  ['Citation X', 'Super-midsize'],
+// Jet classes and display order, from DATA.md, and the manufacturer name shown on each card.
+const JETS: [string, 'Midsize' | 'Super-midsize', string][] = [
+  ['Citation XLS', 'Midsize', 'Cessna'],
+  ['Citation Latitude', 'Midsize', 'Cessna'],
+  ['Citation Sovereign', 'Midsize', 'Cessna'],
+  ['Hawker 800XP', 'Midsize', 'Hawker'],
+  ['Learjet 60', 'Midsize', 'Learjet'],
+  ['Challenger 300', 'Super-midsize', 'Bombardier'],
+  ['Challenger 350', 'Super-midsize', 'Bombardier'],
+  ['Gulfstream G280', 'Super-midsize', 'Gulfstream'],
+  ['Embraer Praetor 600', 'Super-midsize', 'Embraer'],
+  ['Citation X', 'Super-midsize', 'Cessna'],
 ]
 
 const PAVED = /^(asp|asph|asphalt|con|conc|concrete|pem|bit|bitumen|tar|tarmac|paved|macadam|asp-con|con-asp)/i
@@ -83,13 +83,14 @@ function slug(name: string) {
 
 async function loadJets() {
   const fleet = new Map(readCsv(join(ROOT, 'data', 'fleet_summary.csv')).map((r) => [r.jet, r]))
-  const rows = JETS.map(([name, cls], i) => {
+  const rows = JETS.map(([name, cls, manufacturer], i) => {
     const f = fleet.get(name)
     if (!f) throw new Error(`No fleet summary row for ${name}`)
     return {
       id: slug(name),
       name,
       class: cls,
+      manufacturer,
       sort_order: i + 1,
       most_sold_build_years: f.most_sold_build_years,
       active_us_fleet: Number(f.active_us_fleet),

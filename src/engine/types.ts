@@ -24,6 +24,7 @@ export interface Jet {
   class: JetClass
   sort_order: number
   most_sold_build_years: string
+  manufacturer?: string | null
 }
 
 export interface Airport {

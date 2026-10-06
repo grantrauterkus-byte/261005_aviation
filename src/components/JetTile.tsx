@@ -34,7 +34,10 @@ export function JetTile({ rank, result: r, position, confidenceOf, netScale, onO
         <span className="tile-row">
           <span className="tile-top">
             {rank != null && <span className="rank">{rank}</span>}
-            <span className="tile-name">{r.jet.name}</span>
+            <span className="tile-name-block">
+              {r.jet.manufacturer && <span className="maker">{r.jet.manufacturer}</span>}
+              <span className="tile-name">{r.jet.name}</span>
+            </span>
             <span className={`class-tag ${r.jet.class === 'Midsize' ? 'band-mid' : 'band-super'}`}>{r.jet.class}</span>
             <span className="tile-sub">{r.jet.most_sold_build_years}</span>
           </span>
