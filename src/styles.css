@@ -1422,3 +1422,200 @@ button.primary {
 .nowrap {
   white-space: nowrap;
 }
+
+/* Tile: fixed columns and cost bar to scale */
+
+.tile-cols {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+@media (max-width: 760px) {
+  .tile-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.tile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  min-width: 0;
+}
+.tile-col-k {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile-col-v {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile-col.tone-good {
+  background: var(--good-bg);
+  border-color: var(--good-line);
+}
+.tile-col.tone-good .tile-col-v {
+  color: var(--good-ink);
+}
+.tile-col.tone-low {
+  background: var(--low-bg);
+  border-color: var(--low-line);
+}
+.tile-col.tone-low .tile-col-v {
+  color: var(--low-ink);
+}
+.tile-col.tone-fail {
+  background: var(--fail-bg);
+  border-color: var(--fail-line);
+}
+.tile-col.tone-fail .tile-col-v,
+.tile-col.tone-fail .tile-col-k {
+  color: var(--fail-ink);
+}
+.tile.greyed .tile-col:not(.tone-fail) {
+  opacity: 0.7;
+}
+
+.cost-bar {
+  display: block;
+  height: 12px;
+}
+.cost-bar-fill {
+  position: relative;
+  display: flex;
+  height: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.cost-bar-fill .seg {
+  display: block;
+  height: 100%;
+  flex-basis: 0;
+}
+.cost-bar-fill .seg + .seg {
+  border-left: 1px solid var(--surface);
+}
+.cost-bar-income {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(135deg, var(--surface) 0 3px, transparent 3px 6px);
+  border-left: 2px solid var(--seg-income);
+}
+.tile.greyed .cost-bar {
+  opacity: 0.55;
+}
+.cost-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 2px 2px;
+}
+.cost-key-title {
+  font-weight: 600;
+  color: var(--text);
+}
+.cost-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.cost-key i {
+  width: 12px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.cost-key-income {
+  background: repeating-linear-gradient(135deg, var(--surface-2) 0 2px, var(--seg-income) 2px 4px);
+}
+
+/* Expanded view: one colored square per trip */
+.trip-squares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.trip-square {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+.trip-square-code {
+  font-weight: 700;
+  font-size: 14px;
+}
+.trip-square.tone-good {
+  background: var(--good-bg);
+  border-color: var(--good-line);
+  color: var(--good-ink);
+}
+.trip-square.tone-low {
+  background: var(--low-bg);
+  border-color: var(--low-line);
+  color: var(--low-ink);
+}
+.trip-square.tone-fail {
+  background: var(--fail-bg);
+  border-color: var(--fail-line);
+  color: var(--fail-ink);
+}
+
+.drawer-body {
+  overflow-x: hidden;
+}
+.sources-table td:last-child {
+  overflow-wrap: anywhere;
+}
+.sources-table td:nth-child(4),
+.sources-table thead th:nth-child(4) {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .tile-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tile-col-v {
+    white-space: normal;
+  }
+}
+
+/* Values and sources table in the expanded view: fixed column widths so the source keeps room */
+.sources-table {
+  table-layout: fixed;
+}
+.sources-table thead th:nth-child(1) {
+  width: 27%;
+}
+.sources-table thead th:nth-child(2) {
+  width: 20%;
+}
+.sources-table thead th:nth-child(3) {
+  width: 14%;
+}
+.sources-table thead th:nth-child(4) {
+  width: 13%;
+}
+.sources-table td.nowrap {
+  white-space: normal;
+}

@@ -169,3 +169,12 @@ The owner asked that data quality not appear as one more chip, as if it were a f
 **Checked** in a browser with a throwaway login, removed afterwards: tiles, matrix, expanded view and phone width, with no errors. All 36 tests pass.
 
 **Then removed at the owner's request:** the range bars on the tiles and their scale, which were confusing. The 5-year total's low–high range remains in the expanded view. The certainty dots and the matrix hatch stay.
+
+## Follow-up: cleaner tiles
+
+- **Fixed columns:** the wrapping chips on each tile are now six cells in the same position on every tile: nonstop trips, range, seats, bag space, cabin height, cruise speed. Each has its color and certainty dots. On phones they show as two columns.
+- **Cost bar to scale:** each tile has one bar whose length is its 5-year costs, on a shared scale, split into the cost parts. Charter income is hatched over the end of the bar. A color key sits above the tiles.
+- **Trip squares:** the expanded view shows one colored square per trip: green for nonstop, amber for a fuel stop, red if the runway is too short.
+- **Fixes:** the expanded view could scroll sideways; that is stopped. The sources table now uses fixed column widths so source names stay readable.
+
+**Checked** in a browser with a throwaway login, removed afterwards: desktop and phone, no cut-off values, no errors. All 36 tests pass.

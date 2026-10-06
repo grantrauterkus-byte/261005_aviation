@@ -6,6 +6,7 @@ import { JetPanel } from './JetPanel.tsx'
 import { Matrix } from './Matrix.tsx'
 import { Chip, ToneKey } from './Chip.tsx'
 import { CertaintyKey, makeConfidenceOf } from './Certainty.tsx'
+import { CostKey, grossCost } from './costParts.tsx'
 import { COLUMN, COLUMNS, positions as columnPositions, type ColumnKey } from './columns.ts'
 
 interface Props {
@@ -48,6 +49,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
 
   const all = useMemo(() => [...results.fitting, ...results.notFitting], [results])
   const pos = useMemo(() => columnPositions(all), [all])
+  const costScale = useMemo(() => Math.max(1, ...all.map(grossCost)), [all])
   const confidenceOf = useMemo(() => makeConfidenceOf(assumptions, changes), [assumptions, changes])
   const sorted = useMemo(() => {
     const c = COLUMN[sort.key]
@@ -135,6 +137,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
 
       {view === 'tiles' ? (
         <div className="tile-list">
+          {all.length > 0 && <CostKey withIncome={all.some((r) => r.breakdown.charterIncome > 0)} />}
           {sorted.map((r) => (
             <JetTile
               key={r.jet.id}
@@ -142,6 +145,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
               result={r}
               position={pos.get(r.jet.id) ?? {}}
               confidenceOf={confidenceOf}
+              costScale={costScale}
               onOpen={() => setOpenJet(r.jet.id)}
             />
           ))}

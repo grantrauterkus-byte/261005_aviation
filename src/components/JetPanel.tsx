@@ -4,6 +4,7 @@ import { money, moneyRange, num, rawValue } from '../lib/format.ts'
 import { Chip } from './Chip.tsx'
 import { COLUMNS, failingColumns, toneFor, type ColumnKey } from './columns.ts'
 import { CertaintyDots, ConfidenceBar, type ConfidenceOf } from './Certainty.tsx'
+import { PARTS } from './costParts.tsx'
 
 interface Props {
   result: JetResult
@@ -16,15 +17,6 @@ interface Props {
   openLibrary: (o: { focus?: string; jet?: string }) => void
   onClose: () => void
 }
-
-const PARTS = [
-  { key: 'valueLost', label: 'Value lost', cls: 'seg-value' },
-  { key: 'crew', label: 'Crew', cls: 'seg-crew' },
-  { key: 'fixed', label: 'Fixed costs', cls: 'seg-fixed' },
-  { key: 'fuel', label: 'Fuel', cls: 'seg-fuel' },
-  { key: 'maintenance', label: 'Maintenance', cls: 'seg-maint' },
-  { key: 'tripFees', label: 'Trip fees', cls: 'seg-trip' },
-] as const
 
 const SPEC_GROUPS: { title: string; keys: ColumnKey[] }[] = [
   { title: 'Trips', keys: ['nonstop', 'stops', 'range'] },
@@ -259,6 +251,20 @@ export function JetPanel({ result: r, position, confidenceOf, rows, changes, air
 
           <section className="drawer-section">
             <h3>Trips</h3>
+            <div className="trip-squares">
+              {t.plans.map((p) => {
+                const leg = p.legs.find((l) => l.kind === 'passengers')!
+                const runwayFail = r.reasons.some((x) => x.key === 'runway' && (x.label.endsWith(` ${code(leg.to)}`) || x.label.endsWith(` ${code(leg.from)}`)))
+                const status = runwayFail ? 'fail' : p.fuelStopsEachWay > 0 ? 'low' : 'good'
+                const word = runwayFail ? 'Runway too short' : p.fuelStopsEachWay > 0 ? `${p.fuelStopsEachWay} fuel stop${p.fuelStopsEachWay > 1 ? 's' : ''}` : 'Nonstop'
+                return (
+                  <span key={p.tripId} className={`trip-square tone-${status}`} title={`${code(leg.from)}–${code(leg.to)} · ${word}`}>
+                    <span className="trip-square-code">{code(leg.to)}</span>
+                    <span className="trip-square-word">{word}</span>
+                  </span>
+                )
+              })}
+            </div>
             <table className="kv trips-table">
               <thead>
                 <tr>

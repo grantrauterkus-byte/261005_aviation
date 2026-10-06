@@ -2,22 +2,30 @@ import type { JetResult } from '../engine/index.ts'
 import { COLUMN, failingColumns, toneFor, type ColumnKey } from './columns.ts'
 import { Chip } from './Chip.tsx'
 import { CertaintyDots, type ConfidenceOf } from './Certainty.tsx'
+import { CostBar } from './costParts.tsx'
 
-const TILE_CHIPS: ColumnKey[] = ['nonstop', 'seats', 'bags', 'cabinHeight', 'standUp', 'speed']
+/** The same six columns, in the same place, on every tile. */
+const TILE_COLUMNS: ColumnKey[] = ['nonstop', 'range', 'seats', 'bags', 'cabinHeight', 'speed']
+const SHORT_VALUE: Partial<Record<ColumnKey, (r: JetResult) => string>> = {
+  range: (r) => `${r.specs.rangeNm.toLocaleString('en-US')} nautical miles`,
+}
 
 interface Props {
   rank: number | null
   result: JetResult
   position: Partial<Record<ColumnKey, number>>
   confidenceOf: ConfidenceOf
+  costScale: number
   onOpen: () => void
 }
 
-/** One short row per plane, after the tow CRM's tiles: class stripe, name, three numbers, labeled chips. Click opens the full view. */
-export function JetTile({ rank, result: r, position, confidenceOf, onOpen }: Props) {
+/** One row per plane: class stripe, name, three figures, a cost bar to scale, and six fixed columns. Click opens the full view. */
+export function JetTile({ rank, result: r, position, confidenceOf, costScale, onOpen }: Props) {
   const failing = failingColumns(r)
-  // A failing value already shows as a red chip with its need, so its plain chip is left out.
-  const chips = TILE_CHIPS.filter((k) => !failing.has(k))
+  // Seats and bag space show their need in the column itself, for example "7 · need 8".
+  const reasonFor = (k: ColumnKey) => r.reasons.find((x) => (x.key === 'seats' && k === 'seats') || (x.key === 'bags' && k === 'bags'))
+  // Reasons that have no column of their own (runway, must-haves) show as red chips below the columns.
+  const otherReasons = r.reasons.filter((x) => !['seats', 'bags', 'fuelStops'].includes(x.key))
   const t = r.typical
   return (
     <button type="button" className={`tile ${r.fits ? '' : 'greyed'}`} onClick={onOpen}>
@@ -48,18 +56,34 @@ export function JetTile({ rank, result: r, position, confidenceOf, onOpen }: Pro
             </span>
           </span>
         </span>
-        <span className="chips">
-          {r.reasons.map((x) => (
-            <Chip key={`${x.key}-${x.label}`} label={x.label} value={x.value} tone="fail" certainty={confidenceOf(x.assumptionId)} />
-          ))}
-          {chips.map((k) => {
+
+        <CostBar r={r} max={costScale} />
+
+        <span className="tile-cols">
+          {TILE_COLUMNS.map((k) => {
             const c = COLUMN[k]
-            const tone = k === 'nonstop' ? (r.tripsNonstop === r.tripsTotal ? 'good' : 'low') : toneFor(c, position[k], false, r)
-            return <Chip key={k} label={c.label} value={c.chip(r)} tone={tone} certainty={confidenceOf(c.source(r))} />
+            const reason = reasonFor(k)
+            const tone = failing.has(k) ? 'fail' : k === 'nonstop' ? (r.tripsNonstop === r.tripsTotal ? 'good' : 'low') : toneFor(c, position[k], false, r)
+            return (
+              <span key={k} className={`tile-col tone-${tone}`}>
+                <span className="tile-col-k">{c.label}</span>
+                <span className="tile-col-v">
+                  {reason ? reason.value : (SHORT_VALUE[k]?.(r) ?? c.chip(r))}
+                  <CertaintyDots level={confidenceOf(c.source(r))} />
+                </span>
+              </span>
+            )
           })}
-          {t.fuelStopsPerYear > 0 && <Chip label="Fuel stops a year" value={String(t.fuelStopsPerYear)} tone="low" />}
-          {t.charterLimited && <Chip label="Charter capped" value={`${t.charterHours} hours`} tone="low" />}
         </span>
+
+        {(otherReasons.length > 0 || t.charterLimited) && (
+          <span className="chips">
+            {otherReasons.map((x) => (
+              <Chip key={`${x.key}-${x.label}`} label={x.label} value={x.value} tone="fail" certainty={confidenceOf(x.assumptionId)} />
+            ))}
+            {t.charterLimited && <Chip label="Charter capped" value={`${t.charterHours} hours`} tone="low" />}
+          </span>
+        )}
       </span>
     </button>
   )
