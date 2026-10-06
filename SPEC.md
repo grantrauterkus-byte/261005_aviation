@@ -39,8 +39,7 @@ Scope: owning one jet, operated by a management company, optionally chartered ou
   8. Cabin height and width
   9. Bag space
   10. Cruise speed
-  11. Charter check (only if charter hours > 0): Conservative, Typical, Aggressive, or No data
-  12. Data confidence (share of this jet's numbers rated High, Medium or Low)
+  11. Data confidence (share of this jet's numbers rated High, Medium or Low)
 - **Card header:** jet name, class (Midsize or Super-midsize), and "Based on [years] aircraft, the most commonly sold build years."
 - **"What drives this cost":** on each card, a small bar showing the 5-year total split into value lost, pilots and other yearly costs, fuel, maintenance, and charter income (shown as a reduction). Plus one line naming the assumption that would move this jet's 5-year total the most between its low and high values.
 - **Jets that don't fit** appear below the ranked list, greyed out, each with the exact reasons, for example: "Seats 7, you need 8" or "Cannot take off from Aspen (needs 5,600 ft, longest runway 8,006 ft... )". Use real values.
@@ -119,14 +118,7 @@ For each jet and each trip:
 - **Low** uses the favorable end of these assumptions together: purchase price, yearly value loss, fuel price, charter rate, owner's share of charter revenue. **High** uses the unfavorable end. Typical uses each typical value.
 - "The assumption that moves this jet's total the most" = re-run the 5-year total with each of those assumptions at its low and high while the rest stay typical, and name the one with the largest difference.
 
-### 7. Charter check
-Compare the user's charter hours with the measured yearly hours of jets of the same model flying for charter companies (from DATA.md):
-- Below the 25th percentile: **Conservative**
-- 25th to 75th percentile: **Typical**
-- Above the 75th percentile: **Aggressive**
-- No measured data: **No data**
-
-The economics always use the user's number. The check is a label, not a change.
-
 ## Out of scope
 Financing, inflation, paint and interior refurbishment, avionics upgrades, taxes beyond sales tax, login and accounts.
+
+Checking the user's charter hours against measured flight hours of charter jets was considered and dropped (October 2026). OpenSky's daily request limit allows about 130 requests, the full pull needed about 55,000, and the result would only have produced a label, not changed any cost.

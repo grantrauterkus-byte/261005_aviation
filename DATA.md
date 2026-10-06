@@ -53,7 +53,6 @@ Each item lists its sources in order of preference. Use at most 3 sources per va
 | Purchase price, typical / low / high, for the most commonly sold build years (from the FAA summary below) | $ | Published price references and articles (for example Flycraft where shown, aviation press used-aircraft reviews, broker market reports); individual listings only on sites whose terms allow it. Record each price point found with its year, then summarize |
 | Yearly value loss | % per year | Price differences between build years of the same model from the price points above; else a published class rate |
 | Charter rate | $ per hour | Charter broker or operator pages that list a rate for the model (for example skycost.com, jetvice.net); else class average |
-| Measured yearly charter hours (25th, median, 75th percentile) | hours | From the charter summary below |
 
 ### Class-wide (one row for Midsize, one for Super-midsize)
 
@@ -102,18 +101,6 @@ All downloads go to `data/raw/` (git-ignored). Only the summaries are committed.
 - **Most commonly sold build years:** the 5-year window of build years with the most bills of sale in the last 5 years.
 - **Output:** `data/fleet_summary.csv` with columns `jet, active_us_fleet, sales_last_5_years, sales_per_year_avg, most_sold_build_years`.
 
-### 2. FAA charter operator list
-- **Source:** https://www.faa.gov/about/officeorg/headquartersoffices/avs/faa-certificated-aircraft-operators-legal-part-135-holders.xlsx
-- **Match** tail numbers to the registry to find which aircraft of each jet are on charter certificates. Get each one's transponder code (Mode S hex) from the registry master file.
-- **Output:** `data/charter_fleet.csv` with columns `jet, tail_number, operator, mode_s_hex`. The list is known to contain errors; note mismatches.
-
-### 3. OpenSky flight history
-Only if OpenSky credentials are set as environment variables.
-- **Pull:** for up to 30 charter aircraft per jet, pull flights for the last 12 months using `/flights/aircraft` (2-day windows), staying within the account's daily request limit.
-- **Hours per aircraft:** sum of (landing time − takeoff time). Aircraft with fewer than 10 recorded flights are excluded.
-- **Output:** `data/charter_hours.csv` with columns `jet, aircraft_count, hours_25th, hours_median, hours_75th`.
-- **No credentials:** write "No data" for every jet and continue.
-
-### 4. Airports
+### 2. Airports
 - **Source:** OurAirports `airports.csv` and `runways.csv` from https://davidmegginson.github.io/ourairports-data/
 - **Use:** the app needs coordinates, codes, names and the longest runway per airport. Session 2 loads these into Supabase; nothing large is committed.
