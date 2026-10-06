@@ -9,7 +9,7 @@
   - Scenarios cannot be listed or written directly. Three database functions (`get_scenario`, `create_scenario`, `update_scenario`) read and write one scenario and its changes, and each needs the scenario's id. Supabase's security advisor flags these functions as callable without signing in. That is intended: it is how "saved by link, no login" works.
 - **Load script** (`npm run load`, `scripts/load.ts`): loaded 10 jets, 213 assumptions and 21,467 airports. The airports are US airports (small, medium and large) plus any other airport with a paved runway of 4,000 ft or more. The OurAirports files are in `data/raw/` (git-ignored).
 - **Cost engine** (`src/engine/`): follows SPEC.md "How costs are calculated" step by step. No network calls.
-- **Worked example** (`docs/worked-example.md`): the Challenger 300 in the default scenario, every step by hand. A unit test checks the engine matches it to the dollar. It comes to $10,167,803 over 5 years (range $9,003,715 to $11,700,289).
+- **Worked example** (`docs/worked-example.md`): the Challenger 300 in the default scenario, every step by hand. A unit test checks the engine matches it to the dollar. It came to $10,167,803 over 5 years (range $9,003,715 to $11,700,289). After the data update below it is $10,265,303 (range $9,101,215 to $11,797,789).
 - **Tests:** 31 unit tests, all passing (`npm test`). They cover:
   - the worked example
   - trips into legs: wait or fly home empty, same-day, one-way, trips not starting at home base, landings
@@ -135,3 +135,23 @@ The owner found the long cards unusable and the cost bars indistinguishable, and
 **Checked in a browser** with a throwaway login, removed afterwards:
 - tiles, failing chips, the matrix in both modes, the expanded jet with its sources, and the inputs panel
 - no sideways scrolling at phone width, and no errors
+
+## Follow-up: data fixes with published sources
+
+The owner asked to replace the weakest values with defensible ones from public sources, without quotes. Each change is recorded in its row's notes in `data/assumptions.csv`, with sources.
+
+| Value | Before | After | Basis |
+|---|---|---|---|
+| Citation Latitude fuel burn | 315 gallons an hour | **280** (range 246–315) | Jetcraft's 246, scaled by the median gap (1.14) between Jetcraft and this table's figures for five other jets; in line with the Sovereign (281), same engine family |
+| Management fee, midsize | $60,000 a year | **$90,000** (range $42,000–$180,000) | Average of the AviNews (2026) and Flycraft range midpoints; Jet Linx (2026) consistent |
+| Management fee, super-midsize | $81,000 a year | **$100,500** (range $60,000–$180,000) | Same method |
+| Space per suitcase | 2.5 cubic feet, no range | 2.5, **range 1.6–4.2** | Delta carry-on limit; full-size 62-inch checked bag |
+| Hangar, top of range | $65,640 / $105,240 | **$120,000** both classes | AIN 2008: a Gulfstream IV paid $17,000 a month at Teterboro |
+
+**Not changed, on purpose:**
+- **Citation X fuel burn (386):** compared with Jetcraft, it sits in the same band as the other jets, so it is consistent with the basis used for every jet.
+- **Typical hangar:** stays a national figure. A New York owner should enter a quote as "Your value".
+
+**Blocked (not retried):** GlobalAir, Jettly and American Airlines pages.
+
+The worked example and its tests were updated: the Challenger 300's management fee change adds $97,500 over 5 years. All 36 tests pass, and the Library was reloaded into Supabase.

@@ -40,7 +40,7 @@ The steps carry hours at full precision. They are shown rounded here, so a few t
 | Hangar | $66,450 a year | super-midsize.hangar |
 | Insurance hull rate | 0.185% of price a year | super-midsize.insurance_hull_rate |
 | Liability insurance | $18,500 a year | super-midsize.insurance_liability |
-| Management fee | $81,000 a year | super-midsize.management_fee |
+| Management fee | $100,500 a year | super-midsize.management_fee |
 | Other fixed costs | $62,500 a year | super-midsize.other_fixed |
 | Days out of service (base) | 14 a year | super-midsize.base_days_out_of_service |
 | Extra days out of service | 2.5 per 100 hours | super-midsize.extra_days_out_of_service_per_100_hours |
@@ -123,10 +123,10 @@ The jet waits at the destination on every trip, so there are no empty legs.
 | Pilot training | 2 × $22,500 | $45,000 |
 | Hangar | | $66,450 |
 | Insurance | 0.185% × $8,200,000 + $18,500 | $33,670 |
-| Management fee | | $81,000 |
+| Management fee | | $100,500 |
 | Other fixed costs | | $62,500 |
 | Charter certificate costs | no charter hours | $0 |
-| **All yearly costs** | | **$1,369,871** |
+| **All yearly costs** | | **$1,389,371** |
 | Charter income | no charter hours | $0 |
 
 ## 4. Buying and selling
@@ -140,9 +140,9 @@ The jet waits at the destination on every trip, so there are no empty legs.
 
 ## 5. The three numbers
 
-- **5-year total cost** = $3,318,448 + 5 × ($1,369,871 − $0) = **$10,167,803**
-- **Yearly out-of-pocket cost** = $1,369,871 − $0 = **$1,369,871**
-- **Cost per hour you fly** = $10,167,803 ÷ (5 × 117.21) = **$17,349**
+- **5-year total cost** = $3,318,448 + 5 × ($1,389,371 − $0) = **$10,265,303**
+- **Yearly out-of-pocket cost** = $1,389,371 − $0 = **$1,389,371**
+- **Cost per hour you fly** = $10,265,303 ÷ (5 × 117.21) = **$17,516**
 
 ## 6. Ranges
 
@@ -150,14 +150,14 @@ Each range assumption is first moved alone to its low and then its high, with ev
 
 | Assumption | Total at low | Total at high | Difference |
 |---|---|---|---|
-| Purchase price ($6.3M / $10.6M) | $9,398,895 | $11,139,056 | $1,740,162 |
-| Yearly value loss (7.9% / 10.3%) | $9,860,468 | $10,512,357 | $651,889 |
-| Fuel price ($7.57 / $9.16) | $10,008,747 | $10,283,638 | $274,891 |
+| Purchase price ($6.3M / $10.6M) | $9,496,395 | $11,236,556 | $1,740,162 |
+| Yearly value loss (7.9% / 10.3%) | $9,957,968 | $10,609,857 | $651,889 |
+| Fuel price ($7.57 / $9.16) | $10,106,247 | $10,381,138 | $274,891 |
 
 For each assumption the low end is the favorable one. Insurance stays on the typical purchase price, as SPEC.md says.
 
-- **Low** (price $6.3M, value loss 7.9%, fuel $7.57) = **$9,003,715**. Yearly out-of-pocket $1,338,060; cost per hour $15,363.
-- **High** (price $10.6M, value loss 10.3%, fuel $9.16) = **$11,700,289**. Yearly out-of-pocket $1,393,038; cost per hour $19,964.
+- **Low** (price $6.3M, value loss 7.9%, fuel $7.57) = **$9,101,215**. Yearly out-of-pocket $1,357,560; cost per hour $15,530.
+- **High** (price $10.6M, value loss 10.3%, fuel $9.16) = **$11,797,789**. Yearly out-of-pocket $1,412,538; cost per hour $20,131.
 - **The assumption that moves this jet's total the most:** purchase price, by $1,740,162 between its low and high.
 
 ## What drives this cost (5 years)
@@ -166,9 +166,9 @@ For each assumption the low end is the favorable one. Insurance stays on the typ
 |---|---|---|
 | Value lost | | $3,318,448 |
 | Crew | 5 × (pilots $462,734 + training $45,000 + pilots' travel $44,880) | $2,763,069 |
-| Fixed costs | 5 × (hangar $66,450 + insurance $33,670 + management $81,000 + other $62,500 + charter certificate $0) | $1,218,100 |
+| Fixed costs | 5 × (hangar $66,450 + insurance $33,670 + management $100,500 + other $62,500 + charter certificate $0) | $1,315,600 |
 | Fuel | 5 × $293,562 | $1,467,812 |
 | Maintenance and engine reserve | 5 × ($152,375 + $96,700) | $1,245,374 |
 | Trip fees | 5 × (landing and handling $20,800 + fuel stops $0 + parking $10,200) | $155,000 |
 | Charter income | | $0 |
-| **Total** | | **$10,167,803** |
+| **Total** | | **$10,265,303** |
