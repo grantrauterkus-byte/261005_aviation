@@ -1,4 +1,4 @@
-import type { AssumptionRow, Changes, JetResult, Range } from '../engine/index.ts'
+import type { AssumptionRow, Changes, JetResult } from '../engine/index.ts'
 import { confidenceShare } from './columns.ts'
 
 export type Level = 'High' | 'Medium' | 'Low'
@@ -43,59 +43,7 @@ export function ConfidenceBar({ r }: { r: JetResult }) {
   )
 }
 
-export interface Scale {
-  min: number
-  max: number
-  ticks: number[]
-}
-
-/** A dollar scale shared by every tile, in whole millions. */
-export function makeScale(results: JetResult[]): Scale {
-  const lows = results.map((r) => Math.min(r.fiveYearTotal.low, r.fiveYearTotal.typical))
-  const highs = results.map((r) => Math.max(r.fiveYearTotal.high, r.fiveYearTotal.typical))
-  const min = Math.floor(Math.min(...lows) / 1e6) * 1e6
-  const max = Math.ceil(Math.max(...highs) / 1e6) * 1e6
-  const span = Math.max(1e6, max - min)
-  const step = span > 16e6 ? 4e6 : span > 8e6 ? 2e6 : 1e6
-  const ticks: number[] = []
-  for (let v = Math.ceil(min / step) * step; v <= max; v += step) ticks.push(v)
-  return { min, max: min + span, ticks }
-}
-
-const at = (s: Scale, v: number) => `${((v - s.min) / (s.max - s.min)) * 100}%`
-
-/** The 5-year total's low-to-high range on the shared scale, with a tick at the typical value. */
-export function RangeBar({ range, scale }: { range: Range; scale: Scale }) {
-  const lo = Math.min(range.low, range.high)
-  const hi = Math.max(range.low, range.high)
-  return (
-    <span className="range-track" aria-hidden="true">
-      {scale.ticks.map((t) => (
-        <span key={t} className="range-grid" style={{ left: at(scale, t) }} />
-      ))}
-      <span className="range-span" style={{ left: at(scale, lo), width: `calc(${at(scale, hi)} - ${at(scale, lo)})` }} />
-      <span className="range-typical" style={{ left: at(scale, range.typical) }} />
-    </span>
-  )
-}
-
-/** Scale labels shown once above the tiles, lined up with every tile's range bar. */
-export function RangeAxis({ scale }: { scale: Scale }) {
-  return (
-    <div className="range-axis">
-      <span className="range-axis-label">5-year total, low to high · $ million</span>
-      <span className="range-axis-track">
-        {scale.ticks.map((t) => (
-          <span key={t} className="range-axis-tick" style={{ left: at(scale, t) }}>
-            {t / 1e6}
-          </span>
-        ))}
-      </span>
-    </div>
-  )
-}
-
-/** Key for the certainty marks, the matrix hatch and the range bar. */
+/** Key for the certainty marks and the matrix hatch. */
 export function CertaintyKey() {
   return (
     <div className="tone-key certainty-key" aria-label="Confidence key">

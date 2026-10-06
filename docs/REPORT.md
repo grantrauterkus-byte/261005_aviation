@@ -167,3 +167,5 @@ The owner asked that data quality not appear as one more chip, as if it were a f
 - **Removed:** the "Data confidence" chip on the tiles.
 
 **Checked** in a browser with a throwaway login, removed afterwards: tiles, matrix, expanded view and phone width, with no errors. All 36 tests pass.
+
+**Then removed at the owner's request:** the range bars on the tiles and their scale, which were confusing. The 5-year total's low–high range remains in the expanded view. The certainty dots and the matrix hatch stay.

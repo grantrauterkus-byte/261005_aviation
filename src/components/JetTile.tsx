@@ -1,7 +1,7 @@
 import type { JetResult } from '../engine/index.ts'
 import { COLUMN, failingColumns, toneFor, type ColumnKey } from './columns.ts'
 import { Chip } from './Chip.tsx'
-import { CertaintyDots, RangeBar, type ConfidenceOf, type Scale } from './Certainty.tsx'
+import { CertaintyDots, type ConfidenceOf } from './Certainty.tsx'
 
 const TILE_CHIPS: ColumnKey[] = ['nonstop', 'seats', 'bags', 'cabinHeight', 'standUp', 'speed']
 
@@ -9,13 +9,12 @@ interface Props {
   rank: number | null
   result: JetResult
   position: Partial<Record<ColumnKey, number>>
-  scale: Scale
   confidenceOf: ConfidenceOf
   onOpen: () => void
 }
 
 /** One short row per plane, after the tow CRM's tiles: class stripe, name, three numbers, labeled chips. Click opens the full view. */
-export function JetTile({ rank, result: r, position, scale, confidenceOf, onOpen }: Props) {
+export function JetTile({ rank, result: r, position, confidenceOf, onOpen }: Props) {
   const failing = failingColumns(r)
   // A failing value already shows as a red chip with its need, so its plain chip is left out.
   const chips = TILE_CHIPS.filter((k) => !failing.has(k))
@@ -49,7 +48,6 @@ export function JetTile({ rank, result: r, position, scale, confidenceOf, onOpen
             </span>
           </span>
         </span>
-        <RangeBar range={r.fiveYearTotal} scale={scale} />
         <span className="chips">
           {r.reasons.map((x) => (
             <Chip key={`${x.key}-${x.label}`} label={x.label} value={x.value} tone="fail" certainty={confidenceOf(x.assumptionId)} />
