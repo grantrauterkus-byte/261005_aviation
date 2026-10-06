@@ -263,12 +263,12 @@ function Shell({ me }: { me: Me }) {
       )}
 
       <main className="main">
-        {loadError && <p className="notice error">Could not load the app's data: {loadError}</p>}
+        {loadError && <p className="notice error">Data not loaded · {loadError}</p>}
         {scenarioStatus === 'missing' && (
           <div className="notice">
-            <p>No scenario was found at this link. Scenarios are private: you can open only your own.</p>
+            <p>Scenario not found · scenarios are private</p>
             <p>
-              <Link to="/">Start from the demo scenario</Link>
+              <Link to="/">Demo scenario</Link>
             </p>
           </div>
         )}
@@ -280,6 +280,7 @@ function Shell({ me }: { me: Me }) {
             results={results}
             airports={airports}
             rememberAirport={rememberAirport}
+            assumptions={ref.assumptions}
             changes={scenario.changes}
             setChange={setChange}
             openLibrary={openLibrary}
@@ -292,7 +293,7 @@ function Shell({ me }: { me: Me }) {
         )}
       </main>
       <footer className="foot">
-        All amounts are in today's dollars, the same in each of the 5 years. Every number comes from the Assumptions Library, where each value's source is shown.
+        Today's dollars · same in each of the 5 years · sources in the Assumptions Library
       </footer>
     </div>
   )

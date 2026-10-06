@@ -11,6 +11,7 @@ import type {
   Changes,
   Driver,
   EffectiveRequirements,
+  FitReason,
   Jet,
   JetResult,
   Leg,
@@ -274,32 +275,38 @@ function fmt(n: number) {
   return Math.round(n).toLocaleString('en-US')
 }
 
-function airportLabel(a: Airport) {
-  return a.municipality ? `${a.municipality} (${a.code})` : `${a.name} (${a.code})`
-}
-
-function fitReasons(inputs: ScenarioInputs, req: EffectiveRequirements, v: JetValues, tripsNeedingStop: number, airports: Map<string, Airport>): string[] {
-  const reasons: string[] = []
+/** Why a jet does not fit, as short labels and values (no sentences). */
+function fitReasons(inputs: ScenarioInputs, req: EffectiveRequirements, v: JetValues, tripsNeedingStop: number, airports: Map<string, Airport>): FitReason[] {
+  const reasons: FitReason[] = []
   const seats = v.num('seats')
-  if (seats < req.seats) reasons.push(`Seats ${seats}, you need ${req.seats}`)
+  if (seats < req.seats) reasons.push({ key: 'seats', label: 'Seats', value: `${seats} · need ${req.seats}`, assumptionId: v.idFor('seats') })
   const bag = v.num('bag_space')
-  if (bag < req.bagSpaceCuFt) reasons.push(`Bag space ${fmt(bag)} cubic feet, you need ${fmt(req.bagSpaceCuFt)} (${req.bags} bags)`)
+  if (bag < req.bagSpaceCuFt) {
+    reasons.push({ key: 'bags', label: 'Bag space', value: `${fmt(bag)} cubic feet · need ${fmt(req.bagSpaceCuFt)}`, assumptionId: v.idFor('bag_space') })
+  }
   if (req.runwayCheck) {
     const takeoff = v.num('takeoff_distance')
     const idents = new Set([inputs.homeBase, ...inputs.trips.flatMap((t) => [t.from, t.to])])
     for (const id of idents) {
       const a = airports.get(id)
       if (a?.longest_runway_ft != null && a.longest_runway_ft < takeoff) {
-        reasons.push(`Cannot take off from ${airportLabel(a)} (needs ${fmt(takeoff)} ft, longest runway ${fmt(a.longest_runway_ft)} ft)`)
+        reasons.push({
+          key: 'runway',
+          label: `Runway ${a.code}`,
+          value: `${fmt(a.longest_runway_ft)} ft · needs ${fmt(takeoff)} ft`,
+          assumptionId: v.idFor('takeoff_distance'),
+        })
       }
     }
   }
   if (req.maxFuelStopTrips != null && tripsNeedingStop > req.maxFuelStopTrips) {
-    reasons.push(`${tripsNeedingStop} trips a year need a fuel stop, you allow ${req.maxFuelStopTrips}`)
+    reasons.push({ key: 'fuelStops', label: 'Trips with a fuel stop', value: `${tripsNeedingStop} · limit ${req.maxFuelStopTrips}`, assumptionId: v.idFor('range_4_pax') })
   }
-  if (req.standUpCabin && !v.yes('stand_up_cabin')) reasons.push(`No stand-up cabin (cabin height ${fmt(v.num('cabin_height'))} inches)`)
-  if (req.flatFloor && !v.yes('flat_floor')) reasons.push('No flat floor')
-  if (req.enclosedLavatory && !v.yes('enclosed_lavatory')) reasons.push('No enclosed lavatory')
+  if (req.standUpCabin && !v.yes('stand_up_cabin')) reasons.push({ key: 'standUpCabin', label: 'Stand-up cabin', value: 'No', assumptionId: v.idFor('stand_up_cabin') })
+  if (req.flatFloor && !v.yes('flat_floor')) reasons.push({ key: 'flatFloor', label: 'Flat floor', value: 'No', assumptionId: v.idFor('flat_floor') })
+  if (req.enclosedLavatory && !v.yes('enclosed_lavatory')) {
+    reasons.push({ key: 'enclosedLavatory', label: 'Enclosed lavatory', value: 'No', assumptionId: v.idFor('enclosed_lavatory') })
+  }
   return reasons
 }
 
@@ -343,9 +350,11 @@ export function evaluateJet(inputs: ScenarioInputs, jet: Jet, rows: Map<string, 
   const y = typical.yearly
   const breakdown: Breakdown = {
     valueLost: typical.purchase.valueLost,
+    crew: YEARS * (y.pilots + y.pilotTraining + y.pilotTravel),
+    fixed: YEARS * (y.hangar + y.insurance + y.managementFee + y.otherFixed + y.charterCertificate),
     fuel: YEARS * y.fuel,
     maintenance: YEARS * (y.maintenance + y.engineReserve),
-    pilotsAndOther: YEARS * (typical.yearlyCostsTotal - y.fuel - y.maintenance - y.engineReserve),
+    tripFees: YEARS * (y.landingAndHandling + y.fuelStopFees + y.parking),
     charterIncome: YEARS * typical.charterIncome,
   }
 
@@ -356,7 +365,7 @@ export function evaluateJet(inputs: ScenarioInputs, jet: Jet, rows: Map<string, 
   }
 
   const sourceIds: Record<string, string> = {}
-  for (const key of ['purchase_price', 'seats', 'cabin_height', 'cabin_width', 'bag_space', 'cruise_speed', 'range_4_pax', 'fuel_burn', 'maintenance_per_hour', 'yearly_value_loss', 'fuel_price', 'charter_rate']) {
+  for (const key of ['purchase_price', 'seats', 'cabin_height', 'cabin_width', 'cabin_length', 'bag_space', 'cruise_speed', 'range_4_pax', 'takeoff_distance', 'stand_up_cabin', 'flat_floor', 'enclosed_lavatory', 'fuel_burn', 'maintenance_per_hour', 'engine_reserve_per_hour', 'yearly_value_loss', 'fuel_price', 'charter_rate', 'pilot_salary_average', 'hangar', 'landing_handling_fee']) {
     sourceIds[key] = typicalValues.idFor(key)
   }
 
@@ -379,9 +388,14 @@ export function evaluateJet(inputs: ScenarioInputs, jet: Jet, rows: Map<string, 
       seats: typicalValues.num('seats'),
       cabinHeightIn: typicalValues.num('cabin_height'),
       cabinWidthIn: typicalValues.num('cabin_width'),
+      cabinLengthIn: typicalValues.num('cabin_length'),
       bagSpaceCuFt: typicalValues.num('bag_space'),
       cruiseSpeedKt: typicalValues.num('cruise_speed'),
       rangeNm: typicalValues.num('range_4_pax'),
+      takeoffFt: typicalValues.num('takeoff_distance'),
+      standUpCabin: typicalValues.yes('stand_up_cabin'),
+      flatFloor: typicalValues.yes('flat_floor'),
+      enclosedLavatory: typicalValues.yes('enclosed_lavatory'),
       purchasePrice: typicalValues.num('purchase_price'),
     },
     sourceIds,
@@ -396,9 +410,9 @@ export function calculate(inputs: ScenarioInputs, changes: Changes, data: Engine
 
   const known = (id: string) => data.airports.has(id)
   const usable = { ...inputs, trips: inputs.trips.filter((t) => known(t.from) && known(t.to) && t.timesPerYear > 0) }
-  if (!known(inputs.homeBase)) return { requirements: req, fitting: [], notFitting: [], warnings: ['Choose a home base airport.'] }
+  if (!known(inputs.homeBase)) return { requirements: req, fitting: [], notFitting: [], warnings: ['No home base'] }
   const skipped = inputs.trips.length - usable.trips.length
-  if (skipped > 0) warnings.push(`${skipped} trip${skipped > 1 ? 's are' : ' is'} missing an airport or times per year and ${skipped > 1 ? 'are' : 'is'} not counted.`)
+  if (skipped > 0) warnings.push(`Trips not counted: ${skipped} (missing airport or times per year)`)
 
   const results = data.jets.map((jet) => evaluateJet(usable, jet, rows, data.airports, req))
   const fitting = results.filter((r) => r.fits).sort((a, b) => a.fiveYearTotal.typical - b.fiveYearTotal.typical)

@@ -89,9 +89,12 @@ describe('worked example: Challenger 300, default scenario', () => {
   it('splits the total into what drives it', () => {
     const b = c300.breakdown
     expect(dollars(b.valueLost)).toBe(3318448)
-    expect(dollars(b.pilotsAndOther)).toBe(4136169)
+    expect(dollars(b.crew)).toBe(2763069)
+    expect(dollars(b.fixed)).toBe(1218100)
     expect(dollars(b.fuel)).toBe(1467812)
     expect(dollars(b.maintenance)).toBe(1245374)
+    expect(dollars(b.tripFees)).toBe(155000)
     expect(dollars(b.charterIncome)).toBe(0)
+    expect(dollars(b.valueLost + b.crew + b.fixed + b.fuel + b.maintenance + b.tripFees - b.charterIncome)).toBe(10167803)
   })
 })

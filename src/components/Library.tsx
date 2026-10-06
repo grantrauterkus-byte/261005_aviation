@@ -125,10 +125,7 @@ export function Library({ rows, jets, changes, setChange, resetAll, results }: P
       <div className="library-head">
         <div>
           <h1>Assumptions Library</h1>
-          <p className="muted">
-            Every value the app uses, with where it came from. Type in "Your value" to change it. The app uses your value everywhere straight away, and the
-            original value and source stay visible. A changed value replaces its low and high too.
-          </p>
+          <p className="muted">Your value · replaces value, low and high</p>
         </div>
         <button type="button" onClick={resetAll} disabled={changedCount === 0}>
           Reset all{changedCount ? ` (${changedCount})` : ''}
@@ -137,9 +134,9 @@ export function Library({ rows, jets, changes, setChange, resetAll, results }: P
 
       {(focus || usedBy) && (
         <p className="notice filter-note">
-          {focus ? 'Showing one value from a jet card.' : `Showing the ${usedBy!.ids.size} values used for the ${usedBy!.name}.`}{' '}
+          {focus ? '1 value' : `${usedBy!.name} · ${usedBy!.ids.size} values`}{' '}
           <button type="button" className="link" onClick={clearParams}>
-            Show all values
+            Show all
           </button>
         </p>
       )}

@@ -11,6 +11,7 @@ A web app that helps someone decide which midsize or super-midsize jet to buy an
 - Plain English everywhere. No variables, abbreviations or code-like names in anything a user sees. Write "Hours you fly per year", not "H" or "owner_hrs".
 - Descriptive and factual. No marketing language and no filler.
 - Every number shown in the app must be traceable to a row in the Assumptions Library.
+- The app never shows sentences built by its own logic. Only short factual labels, numbers, colors and labeled chips (for example "Seats · 7 · need 8"). Any sentence would have to be written live by AI, and this app does not do that.
 
 ## Data rules
 - Every value stored has: source name, source link, source date, applies-to tag (Plane-specific, Class-wide or Same for all), type (Measured, Published or Our assumption), confidence (High, Medium or Low).

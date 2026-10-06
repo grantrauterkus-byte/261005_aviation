@@ -161,18 +161,29 @@ export interface Driver {
   difference: number
 }
 
+/** The 5-year total split into parts. Value lost plus the parts, minus charter income, equals the 5-year total. */
 export interface Breakdown {
   valueLost: number
-  pilotsAndOther: number
+  crew: number // pilots, training, pilots' travel
+  fixed: number // hangar, insurance, management fee, other fixed costs, charter certificate costs
   fuel: number
-  maintenance: number
+  maintenance: number // maintenance and engine reserve
+  tripFees: number // landing and handling, fuel stop fees, parking
   charterIncome: number // a reduction, stored as a positive amount
+}
+
+/** Why a jet does not fit, as a short label and value, e.g. { label: 'Seats', value: '7 · need 8' }. */
+export interface FitReason {
+  key: 'seats' | 'bags' | 'runway' | 'fuelStops' | 'standUpCabin' | 'flatFloor' | 'enclosedLavatory'
+  label: string
+  value: string
+  assumptionId: string | null
 }
 
 export interface JetResult {
   jet: Jet
   fits: boolean
-  reasons: string[]
+  reasons: FitReason[]
   tripsNonstop: number
   tripsTotal: number
   tripsNeedingFuelStop: number
@@ -188,9 +199,14 @@ export interface JetResult {
     seats: number
     cabinHeightIn: number
     cabinWidthIn: number
+    cabinLengthIn: number
     bagSpaceCuFt: number
     cruiseSpeedKt: number
     rangeNm: number
+    takeoffFt: number
+    standUpCabin: boolean
+    flatFloor: boolean
+    enclosedLavatory: boolean
     purchasePrice: number
   }
   /** Assumption id behind each scorecard value, for linking to the Library. */

@@ -18,16 +18,7 @@ export function ScenarioBar({ name, id, save, onRename, onNew, onCopy, scenarios
   const [copied, setCopied] = useState(false)
   const link = id ? `${window.location.origin}/s/${id}` : null
 
-  const status =
-    save === 'saving'
-      ? 'Saving…'
-      : save === 'error'
-        ? 'Could not save. Changes will be retried with your next edit.'
-        : id
-          ? save === 'saved'
-            ? 'Saved to your account. Only you can open it.'
-            : 'Saving…'
-          : 'Demo scenario. Your first change saves it to your account.'
+  const status = save === 'error' ? 'Not saved · retries on next change' : id ? (save === 'saved' ? 'Saved · private' : 'Saving…') : 'Demo · saves on first change'
 
   const copyLink = async () => {
     if (!link) return
@@ -64,7 +55,7 @@ export function ScenarioBar({ name, id, save, onRename, onNew, onCopy, scenarios
           {status}
         </p>
         <div className="scenario-actions">
-          <button type="button" onClick={copyLink} disabled={!link} title={link ? 'A link to open this scenario on another device. Only you can open it.' : 'Make a change first to save this scenario'}>
+          <button type="button" onClick={copyLink} disabled={!link} title={link ? 'Link for your other devices' : 'Saves on first change'}>
             {copied ? 'Link copied' : 'Copy link'}
           </button>
           <button type="button" onClick={onCopy}>

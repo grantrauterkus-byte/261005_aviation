@@ -15,7 +15,7 @@ function reply(status: number, body: unknown) {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
-  if (req.method !== 'POST') return reply(405, { error: 'Use POST.' })
+  if (req.method !== 'POST') return reply(405, { error: 'POST only' })
 
   const url = Deno.env.get('SUPABASE_URL')!
   const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
@@ -23,23 +23,23 @@ Deno.serve(async (req) => {
   // Who is calling, and are they an admin?
   const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
   const { data: caller, error: callerError } = await admin.auth.getUser(token)
-  if (callerError || !caller?.user) return reply(401, { error: 'Please sign in again.' })
+  if (callerError || !caller?.user) return reply(401, { error: 'Signed out · sign in again' })
   const { data: me } = await admin.from('people').select('id,is_admin').eq('id', caller.user.id).maybeSingle()
-  if (!me?.is_admin) return reply(403, { error: 'Only an admin can manage people.' })
+  if (!me?.is_admin) return reply(403, { error: 'Admins only' })
 
   let body: Record<string, unknown>
   try {
     body = await req.json()
   } catch {
-    return reply(400, { error: 'The request could not be read.' })
+    return reply(400, { error: 'Unreadable request' })
   }
 
   if (body.action === 'add') {
     const identity = parseIdentity(String(body.signInAs ?? ''))
-    if (!identity) return reply(400, { error: 'Type an email address, a phone number (at least 8 digits) or a name (at least 2 letters).' })
+    if (!identity) return reply(400, { error: 'Email, phone (8+ digits) or name (2+ letters)' })
     const displayName = String(body.displayName ?? '').trim() || String(body.signInAs ?? '').trim()
     const { data: taken } = await admin.from('people').select('id').eq('sign_in_as', identity.signInAs).maybeSingle()
-    if (taken) return reply(409, { error: `Someone already signs in as "${identity.signInAs}".` })
+    if (taken) return reply(409, { error: `Already added · ${identity.signInAs}` })
 
     const password = temporaryPassword()
     const { data: created, error } = await admin.auth.admin.createUser({
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       email_confirm: true,
       user_metadata: { display_name: displayName },
     })
-    if (error || !created?.user) return reply(400, { error: `Could not add this person: ${error?.message ?? 'unknown error'}` })
+    if (error || !created?.user) return reply(400, { error: `Not added · ${error?.message ?? 'unknown error'}` })
 
     const { error: insertError } = await admin.from('people').insert({
       id: created.user.id,
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     })
     if (insertError) {
       await admin.auth.admin.deleteUser(created.user.id)
-      return reply(400, { error: `Could not add this person: ${insertError.message}` })
+      return reply(400, { error: `Not added · ${insertError.message}` })
     }
     return reply(200, { id: created.user.id, signInAs: identity.signInAs, kind: identity.kind, temporaryPassword: password })
   }
@@ -69,24 +69,24 @@ Deno.serve(async (req) => {
   if (body.action === 'reset') {
     const id = String(body.id ?? '')
     const { data: person } = await admin.from('people').select('id,sign_in_as').eq('id', id).maybeSingle()
-    if (!person) return reply(404, { error: 'That person was not found.' })
+    if (!person) return reply(404, { error: 'Person not found' })
     const password = temporaryPassword()
     const { error } = await admin.auth.admin.updateUserById(id, { password })
-    if (error) return reply(400, { error: `Could not reset the password: ${error.message}` })
+    if (error) return reply(400, { error: `Not reset · ${error.message}` })
     await admin.from('people').update({ must_change_password: true }).eq('id', id)
     return reply(200, { id, signInAs: person.sign_in_as, temporaryPassword: password })
   }
 
   if (body.action === 'remove') {
     const id = String(body.id ?? '')
-    if (id === me.id) return reply(400, { error: 'You cannot remove yourself.' })
+    if (id === me.id) return reply(400, { error: 'Cannot remove yourself' })
     const { data: person } = await admin.from('people').select('id').eq('id', id).maybeSingle()
-    if (!person) return reply(404, { error: 'That person was not found.' })
+    if (!person) return reply(404, { error: 'Person not found' })
     // Removing the sign-in also removes their row in people and their scenarios.
     const { error } = await admin.auth.admin.deleteUser(id)
-    if (error) return reply(400, { error: `Could not remove this person: ${error.message}` })
+    if (error) return reply(400, { error: `Not removed · ${error.message}` })
     return reply(200, { id })
   }
 
-  return reply(400, { error: 'Unknown action.' })
+  return reply(400, { error: 'Unknown action' })
 })

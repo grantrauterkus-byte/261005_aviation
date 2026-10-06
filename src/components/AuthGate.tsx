@@ -26,13 +26,13 @@ export function AuthGate({ children }: { children: (me: Me) => ReactNode }) {
       .catch(() => setMe(null))
   }, [userId])
 
-  if (!supabaseConfigured) return <Centered title="Jet Ownership Finder">The app is not connected to its database.</Centered>
+  if (!supabaseConfigured) return <Centered title="Jet Ownership Finder">Database not connected</Centered>
   if (session === undefined || (session && me === undefined)) return <Centered title="Jet Ownership Finder">Loading…</Centered>
   if (!session) return <SignIn />
   if (!me)
     return (
       <Centered title="No access yet">
-        <p>This sign-in has not been given access to the app. Ask the person who invited you.</p>
+        <p>No access for this sign-in</p>
         <button type="button" onClick={signOut}>
           Sign out
         </button>
@@ -60,7 +60,7 @@ function SignIn() {
   const [busy, setBusy] = useState(false)
   return (
     <Centered title="Jet Ownership Finder">
-      <p className="muted">Sign in with the email, phone number or name and the password you were given.</p>
+
       <form
         className="auth-form"
         onSubmit={async (e) => {
@@ -87,7 +87,7 @@ function SignIn() {
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-      <p className="hint">Access is by invitation only. If you have lost your password, ask the person who invited you to reset it.</p>
+      <p className="hint">Invitation only · lost password: ask your admin</p>
     </Centered>
   )
 }
@@ -99,13 +99,13 @@ function ChangePassword({ me, onDone }: { me: Me; onDone: () => void }) {
   const [busy, setBusy] = useState(false)
   return (
     <Centered title={`Welcome, ${me.display_name}`}>
-      <p className="muted">You signed in with a temporary password. Choose your own password to continue.</p>
+      <p className="muted">Temporary password · choose your own</p>
       <form
         className="auth-form"
         onSubmit={async (e) => {
           e.preventDefault()
-          if (password.length < MIN_PASSWORD_LENGTH) return setError(`Use at least ${MIN_PASSWORD_LENGTH} characters.`)
-          if (password !== again) return setError('The two passwords are not the same.')
+          if (password.length < MIN_PASSWORD_LENGTH) return setError(`At least ${MIN_PASSWORD_LENGTH} characters`)
+          if (password !== again) return setError('Passwords differ')
           setBusy(true)
           const err = await changePassword(password)
           setBusy(false)

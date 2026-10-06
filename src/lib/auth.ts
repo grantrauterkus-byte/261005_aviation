@@ -18,9 +18,9 @@ export const MIN_PASSWORD_LENGTH = 10
 
 export async function signIn(signInAs: string, password: string): Promise<string | null> {
   const identity = parseIdentity(signInAs)
-  if (!identity) return 'Type the email, phone number or name you were given.'
+  if (!identity) return 'Email, phone number or name not recognized'
   const { error } = await supabase.auth.signInWithPassword({ email: identity.authEmail, password })
-  if (error) return error.message === 'Invalid login credentials' ? 'That sign-in or password is not right.' : error.message
+  if (error) return error.message === 'Invalid login credentials' ? 'Sign-in or password incorrect' : error.message
   return null
 }
 

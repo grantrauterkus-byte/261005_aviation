@@ -107,3 +107,31 @@ The owner asked that only people they add can use the app, each added by name, e
 - The Supabase tool timed out applying the change in one go. It seems to wait for an approval on "drop" and "revoke" statements. The change was applied in two parts, rewritten to change the existing access rules instead of dropping them. Visitors who aren't signed in still hold the old table permissions, but no access rule lets them see any rows (checked).
 - A Netlify site password was refused (it needs a paid Netlify plan), and the owner declined the Netlify team-login lock. The database itself was locked first instead.
 - **Open:** in Supabase → Authentication → Sign In / Providers, turn off "Allow new users to sign up". Self sign-ups already get no access, because they aren't in `people`, but turning it off stops strangers creating empty accounts.
+
+## Follow-up: tiles, matrix and no app-built sentences
+
+The owner found the long cards unusable and the cost bars indistinguishable, and set a rule: no sentences built by the app's own logic, only short factual labels, numbers, colors and labeled chips. The rule is now in CLAUDE.md, and SPEC.md describes the new layout.
+
+**Built:**
+- **Tiles**, after the tow CRM's layout. Each tile is one short row: a class stripe, the name, build years, and three figures: 5-year total, per hour, price.
+  - Labeled chips show the label in words and then the value, for example "Seats · 8".
+  - Green means the best third of the jets that fit, amber the lowest third, red fails a need. A color key sits by the sort menu.
+  - Jets that don't fit are greyed out, with red chips such as "Stand-up cabin · No".
+- **Matrix:** every element of every plane in one grid, 25 columns in 6 groups: cost, cost parts, trips, cabin, performance, data.
+  - Each column is shaded from green to amber among the jets that fit, and a failed need is red.
+  - Clicking a column header sorts by it.
+  - The cost parts switch between amounts and the difference from the lowest.
+- **Expanded jet:** clicking a tile or matrix row opens a side panel with:
+  - the figures, with ranges, and the price editor
+  - the fail, biggest swing and data confidence chips
+  - the cost parts with a bar
+  - every element with its color
+  - the yearly flying and each trip
+  - every value used, with its low–high, confidence and linked source
+- **Inputs:** a summary bar of chips. "Edit" opens the full inputs in a side panel.
+- **Engine:** cost parts are now value lost, crew, fixed costs, fuel, maintenance, trip fees and charter income. The old "pilots and other" part, about half of every total and nearly the same for every jet, was split into crew, fixed costs and trip fees. "Does not fit" reasons are short labels with the Library row behind them. The worked example and tests were updated to match, and all 36 pass.
+- **Text:** every app-built sentence was replaced with short labels, including status lines, warnings, hints and the server function's messages.
+
+**Checked in a browser** with a throwaway login, removed afterwards:
+- tiles, failing chips, the matrix in both modes, the expanded jet with its sources, and the inputs panel
+- no sideways scrolling at phone width, and no errors

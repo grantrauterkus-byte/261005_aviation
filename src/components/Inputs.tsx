@@ -8,7 +8,6 @@ interface Props {
   airports: Map<string, Airport>
   rememberAirport: (a: Airport) => void
   requirements: EffectiveRequirements
-  tripsNeedingStopNote: string
 }
 
 /** A number box that lets people clear it while typing; only whole, in-range numbers are passed on. */
@@ -69,7 +68,7 @@ function newTripId() {
   return `trip-${Date.now().toString(36)}-${tripCounter}`
 }
 
-export function Inputs({ inputs, setInputs, airports, rememberAirport, requirements, tripsNeedingStopNote }: Props) {
+export function Inputs({ inputs, setInputs, airports, rememberAirport, requirements }: Props) {
   const setTrip = (id: string, patch: Partial<Trip>) =>
     setInputs({ ...inputs, trips: inputs.trips.map((t) => (t.id === id ? { ...t, ...patch } : t)) })
   const removeTrip = (id: string) => setInputs({ ...inputs, trips: inputs.trips.filter((t) => t.id !== id) })
@@ -155,7 +154,7 @@ export function Inputs({ inputs, setInputs, airports, rememberAirport, requireme
                   />
                 )}
               </div>
-              {t.roundTrip && t.daysAtDestination === 0 && <p className="hint">0 days means a same-day return.</p>}
+              {t.roundTrip && t.daysAtDestination === 0 && <p className="hint">Same day</p>}
             </li>
           ))}
         </ol>
@@ -166,24 +165,23 @@ export function Inputs({ inputs, setInputs, airports, rememberAirport, requireme
 
       <section className="panel">
         <h2>Requirements</h2>
-        <p className="hint">Seats and bag space are filled in from your trips. You can change them.</p>
         <div className="req-grid">
           <div>
             <NumberField label="Seats needed" value={r.seats ?? requirements.seats} min={1} max={19} onChange={(n) => setReq({ seats: n })} />
             {r.seats != null && (
-              <button type="button" className="link" onClick={() => setReq({ seats: null })}>
-                Use the most passengers on any trip
+              <button type="button" className="link small" onClick={() => setReq({ seats: null })}>
+                Reset to trips
               </button>
             )}
           </div>
           <div>
             <NumberField label="Bags needed" value={r.bags ?? requirements.bags} min={0} max={60} onChange={(n) => setReq({ bags: n })} />
             <p className="hint">
-              Bag space needed: {requirements.bagSpaceCuFt.toLocaleString('en-US')} cubic feet ({requirements.bagSizeCuFt} per bag)
+              {requirements.bagSpaceCuFt.toLocaleString('en-US')} cubic feet · {requirements.bagSizeCuFt} per bag
             </p>
             {r.bags != null && (
-              <button type="button" className="link" onClick={() => setReq({ bags: null })}>
-                Use the most bags on any trip
+              <button type="button" className="link small" onClick={() => setReq({ bags: null })}>
+                Reset to trips
               </button>
             )}
           </div>
@@ -197,14 +195,12 @@ export function Inputs({ inputs, setInputs, airports, rememberAirport, requireme
               placeholder="No limit"
               onChange={(n) => setReq({ maxFuelStopTrips: n })}
             />
-            <p className="hint">{tripsNeedingStopNote}</p>
           </div>
         </div>
         <fieldset className="checks">
           <legend className="label">Checks and must-haves</legend>
           <label>
-            <input type="checkbox" checked={r.runwayCheck} onChange={(e) => setReq({ runwayCheck: e.target.checked })} /> Runway check: the jet must be able to
-            take off from every airport in my trips
+            <input type="checkbox" checked={r.runwayCheck} onChange={(e) => setReq({ runwayCheck: e.target.checked })} /> Runway check · every airport in my trips
           </label>
           <label>
             <input type="checkbox" checked={r.standUpCabin} onChange={(e) => setReq({ standUpCabin: e.target.checked })} /> Stand-up cabin (6 ft or more)
@@ -221,7 +217,7 @@ export function Inputs({ inputs, setInputs, airports, rememberAirport, requireme
       <section className="panel">
         <h2>Charter</h2>
         <NumberField
-          label="Hours you would charter the jet out per year (0 to 400)"
+          label="Hours chartered out per year (0 to 400)"
           value={inputs.charterHours}
           min={0}
           max={400}

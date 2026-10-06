@@ -162,11 +162,13 @@ For each assumption the low end is the favorable one. Insurance stays on the typ
 
 ## What drives this cost (5 years)
 
-| Part | Amount |
-|---|---|
-| Value lost | $3,318,448 |
-| Pilots and other yearly costs | 5 × (all yearly costs − fuel − maintenance − engine reserve) = $4,136,169 |
-| Fuel | 5 × $293,562 = $1,467,812 |
-| Maintenance (including engine reserve) | 5 × ($152,375 + $96,700) = $1,245,374 |
-| Charter income | $0 |
-| **Total** | **$10,167,803** |
+| Part | Calculation | Amount |
+|---|---|---|
+| Value lost | | $3,318,448 |
+| Crew | 5 × (pilots $462,734 + training $45,000 + pilots' travel $44,880) | $2,763,069 |
+| Fixed costs | 5 × (hangar $66,450 + insurance $33,670 + management $81,000 + other $62,500 + charter certificate $0) | $1,218,100 |
+| Fuel | 5 × $293,562 | $1,467,812 |
+| Maintenance and engine reserve | 5 × ($152,375 + $96,700) | $1,245,374 |
+| Trip fees | 5 × (landing and handling $20,800 + fuel stops $0 + parking $10,200) | $155,000 |
+| Charter income | | $0 |
+| **Total** | | **$10,167,803** |

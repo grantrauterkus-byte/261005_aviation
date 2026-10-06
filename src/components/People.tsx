@@ -41,7 +41,7 @@ export function People({ me }: { me: Me }) {
   }
 
   const reset = async (p: Person) => {
-    if (!window.confirm(`Give ${p.display_name} a new temporary password? Their current password will stop working.`)) return
+    if (!window.confirm(`New temporary password for ${p.display_name}? Current password stops working.`)) return
     setError(null)
     const r = await managePeople({ action: 'reset', id: p.id })
     if (r.error || !r.temporaryPassword) return setError(r.error ?? 'Something went wrong.')
@@ -51,7 +51,7 @@ export function People({ me }: { me: Me }) {
   }
 
   const remove = async (p: Person) => {
-    if (!window.confirm(`Remove ${p.display_name}? They will no longer be able to sign in, and their saved scenarios will be deleted.`)) return
+    if (!window.confirm(`Remove ${p.display_name}? Sign-in and saved scenarios are deleted.`)) return
     setError(null)
     const r = await managePeople({ action: 'remove', id: p.id })
     if (r.error) return setError(r.error)
@@ -72,15 +72,12 @@ export function People({ me }: { me: Me }) {
   return (
     <div className="people">
       <h1>People</h1>
-      <p className="muted">
-        Only the people listed here can sign in. Add someone by their email, phone number or name, then send them the temporary password yourself. They choose
-        their own password the first time they sign in.
-      </p>
+      <p className="muted">Invited people · temporary passwords change at first sign-in</p>
 
       {issued && (
         <div className="issued" role="status">
           <p>
-            <strong>{issued.reset ? 'New temporary password' : 'Added'}.</strong> Send these to the person. The password is shown only once.
+            <strong>{issued.reset ? 'New temporary password' : 'Added'}</strong> · shown once
           </p>
           <dl>
             <dt>Sign in as</dt>
@@ -110,7 +107,7 @@ export function People({ me }: { me: Me }) {
                 {KIND_LABEL[preview.kind]}: {preview.signInAs}
               </span>
             )}
-            {signInAs.trim() && !preview && <span className="error-text">Type an email address, a phone number (at least 8 digits) or a name.</span>}
+            {signInAs.trim() && !preview && <span className="error-text">Email, phone (8+ digits) or name</span>}
           </label>
           <label className="field">
             <span className="label">Name to show</span>

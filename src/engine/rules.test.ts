@@ -123,7 +123,7 @@ describe('fuel stops', () => {
     inputs.requirements = { ...inputs.requirements, maxFuelStopTrips: 2 }
     const xls = jet(inputs, 'citation-xls')
     expect(xls.fits).toBe(false)
-    expect(xls.reasons).toContain('3 trips a year need a fuel stop, you allow 2')
+    expect(xls.reasons.map((r) => `${r.label}: ${r.value}`)).toContain('Trips with a fuel stop: 3 · limit 2')
     expect(jet(inputs, 'embraer-praetor-600').fits).toBe(true)
   })
 })
@@ -200,13 +200,14 @@ describe('fit checks', () => {
     inputs.requirements = { ...inputs.requirements, standUpCabin: true, flatFloor: true }
     const lear = jet(inputs, 'learjet-60')
     expect(lear.fits).toBe(false)
-    expect(lear.reasons).toEqual([
-      'Seats 7, you need 9',
-      'Bag space 48 cubic feet, you need 75 (30 bags)',
-      'Cannot take off from Shortville (SHT) (needs 5,450 ft, longest runway 4,000 ft)',
-      'No stand-up cabin (cabin height 68 inches)',
-      'No flat floor',
+    expect(lear.reasons.map((r) => `${r.label}: ${r.value}`)).toEqual([
+      'Seats: 7 · need 9',
+      'Bag space: 48 cubic feet · need 75',
+      'Runway SHT: 4,000 ft · needs 5,450 ft',
+      'Stand-up cabin: No',
+      'Flat floor: No',
     ])
+    expect(lear.reasons[0].assumptionId).toBe('learjet-60.seats')
   })
 
   it('runway check off ignores runways', () => {

@@ -26,9 +26,14 @@ Scope: owning one jet, operated by a management company, optionally chartered ou
 4. **Hours you would charter the jet out per year** (0 to 400, default 0).
 
 ### Results
-- A header line: "X of 10 jets fit how you fly."
-- **A ranked list of jet cards.** Sorted by 5-year total cost by default. A sort menu lets the user sort by any scorecard row.
-- **Every card shows the same scorecard rows, in the same order and position,** so values line up across cards:
+Redesigned October 2026 after the tow CRM's layout. No sentences built by the app: only short labels, numbers, colors and labeled chips.
+- **Summary bar:** the inputs shown as labeled chips (Home, Trips, Seats, Bags, Runway check, Range margin, Charter, any must-haves), with "Edit" opening the full inputs in a side panel.
+- A header label: "X of 10 fit".
+- **Two views, one sort:** Tiles or Matrix. The sort menu (and clicking a matrix column) sorts by any element.
+- **Tiles:** one short row per jet. A colored stripe for the class, the name, build years, and three figures: 5-year total, cost per hour you fly, purchase price. Below them, labeled chips: each chip shows its label in words and its value (for example "Seats · 8"). Green means the best third of the jets that fit, amber the lowest third, red fails a need. Data confidence is green when mostly High and amber when mostly Low. Jets that don't fit are greyed out, with a red chip for each need they fail (for example "Seats · 7 · need 8", "Runway ASE · 4,000 ft · needs 5,450 ft").
+- **Matrix:** one row per jet, one column per element: the three costs and purchase price; the cost parts over 5 years (value lost, crew, fixed costs, fuel, maintenance, trip fees, charter income); trips (nonstop trips, fuel stops a year, range); cabin (seats, height, width, length, bag space, stand-up cabin, flat floor, enclosed lavatory); performance (cruise speed, takeoff distance); data confidence. Units are in the column headers. Each column is shaded from green (best) to amber (lowest) among the jets that fit; a value that fails a need is red. The cost parts can show amounts or the difference from the lowest.
+- **Expanded jet:** clicking a tile or matrix row opens a side panel with the four figures (with low–high ranges), the purchase price editor, chips (fails, biggest swing, charter capped, data confidence), the cost parts with a bar, every element with its color, the yearly flying, each trip, and every value used with its low–high, confidence and linked source.
+- The scorecard elements below are all shown in the matrix and the expanded jet:
   1. 5-year total cost (typical, with low–high range)
   2. Yearly out-of-pocket cost
   3. Cost per hour you fly
@@ -40,10 +45,9 @@ Scope: owning one jet, operated by a management company, optionally chartered ou
   9. Bag space
   10. Cruise speed
   11. Data confidence (share of this jet's numbers rated High, Medium or Low)
-- **Card header:** jet name, class (Midsize or Super-midsize), and "Based on [years] aircraft, the most commonly sold build years."
-- **"What drives this cost":** on each card, a small bar showing the 5-year total split into value lost, pilots and other yearly costs, fuel, maintenance, and charter income (shown as a reduction). Plus one line naming the assumption that would move this jet's 5-year total the most between its low and high values.
-- **Jets that don't fit** appear below the ranked list, greyed out, each with the exact reasons, for example: "Seats 7, you need 8" or "Cannot take off from Aspen (needs 5,600 ft, longest runway 8,006 ft... )". Use real values.
-- **Any number on a card is clickable** and opens its row in the Assumptions Library.
+- **Cost parts:** value lost, crew (pilots, training, pilots' travel), fixed costs (hangar, insurance, management fee, other fixed costs, charter certificate costs), fuel, maintenance (maintenance and engine reserve), trip fees (landing and handling, fuel stop fees, parking), and charter income as a reduction.
+- **Biggest swing:** a chip naming the assumption that moves the jet's 5-year total the most between its low and high values, with the amount.
+- **Any value in the expanded jet is clickable** and opens its row in the Assumptions Library.
 
 ## Screen 2: Assumptions Library
 One long flat table with every value the app uses: researched values, measured values and our assumptions.
