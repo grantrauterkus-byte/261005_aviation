@@ -1,0 +1,132 @@
+# Product spec: Jet Ownership Finder
+
+## Purpose
+The user describes how they fly in a typical year. The app shows which of 10 midsize and super-midsize jets fit, ranks them, and shows the cost of buying and owning each for 5 years, with every assumption visible, sourced and editable.
+
+Scope: owning one jet, operated by a management company, optionally chartered out to others when the owner isn't using it. All amounts are in today's dollars, flat across the 5 years.
+
+## Screen 1: Find my jet (the main screen)
+
+### Inputs (top or left panel)
+1. **Home base airport** (search by name or code).
+2. **Trips.** A list. "Add a trip" asks for:
+   - From airport (defaults to home base) and to airport
+   - Passengers
+   - Bags (number of suitcases)
+   - Round trip or one-way
+   - Days at destination (round trips only; 0 means same-day return)
+   - Times per year
+3. **Requirements.** Defaults are filled in from the trips; the user can change them:
+   - Seats needed (default: the most passengers on any trip)
+   - Bag space needed (default: the most bags on any trip)
+   - Runway check on or off (on: the jet must be able to take off from every airport in the trips)
+   - Range safety margin, in % (default 10%). Any trip longer than the jet's range minus this margin needs a fuel stop.
+   - Most trips allowed to need a fuel stop (default: no limit). The app always shows how many trips would need one.
+   - Must-haves (checkboxes): stand-up cabin, flat floor, enclosed lavatory
+4. **Hours you would charter the jet out per year** (0 to 400, default 0).
+
+### Results
+- A header line: "X of 10 jets fit how you fly."
+- **A ranked list of jet cards.** Sorted by 5-year total cost by default. A sort menu lets the user sort by any scorecard row.
+- **Every card shows the same scorecard rows, in the same order and position,** so values line up across cards:
+  1. 5-year total cost (typical, with low–high range)
+  2. Yearly out-of-pocket cost
+  3. Cost per hour you fly
+  4. Purchase price (for the build years shown)
+  5. Trips flown nonstop (for example, "34 of 38")
+  6. Fuel stops per year
+  7. Seats
+  8. Cabin height and width
+  9. Bag space
+  10. Cruise speed
+  11. Charter check (only if charter hours > 0): Conservative, Typical, Aggressive, or No data
+  12. Data confidence (share of this jet's numbers rated High, Medium or Low)
+- **Card header:** jet name, class (Midsize or Super-midsize), and "Based on [years] aircraft, the most commonly sold build years."
+- **"What drives this cost":** on each card, a small bar showing the 5-year total split into value lost, pilots and other yearly costs, fuel, maintenance, and charter income (shown as a reduction). Plus one line naming the assumption that would move this jet's 5-year total the most between its low and high values.
+- **Jets that don't fit** appear below the ranked list, greyed out, each with the exact reasons, for example: "Seats 7, you need 8" or "Cannot take off from Aspen (needs 5,600 ft, longest runway 8,006 ft... )". Use real values.
+- **Any number on a card is clickable** and opens its row in the Assumptions Library.
+
+## Screen 2: Assumptions Library
+One long flat table with every value the app uses: researched values, measured values and our assumptions.
+
+Columns: Item, Jet (or "All jets" / "Midsize" / "Super-midsize"), Applies to (Plane-specific / Class-wide / Same for all), Value, Low, High, Unit, Type (Measured / Published / Our assumption), Source (linked), Source date, Confidence, Notes (how it was derived), Your value.
+
+- Search box and filters: jet, applies to, type, confidence, "only items I changed."
+- **Edit:** the user types a value in "Your value." The app uses it everywhere immediately, and the row is visibly marked as changed.
+- **Revert:** each changed row has a "Revert" control. A "Reset all" button reverts everything.
+- The original value and source are always shown, even when changed.
+- The purchase price for every jet is editable here and also directly on its card.
+
+## Scenarios (saving)
+- Everything the user enters (trips, requirements, charter hours, changed values) is a scenario.
+- A scenario is saved in the database and has its own link. Opening the link on any device shows that scenario. No login.
+- "New scenario" starts from the default. "Copy scenario" duplicates the current one.
+- The app opens with a default demo scenario:
+  - Home base: Teterboro (TEB)
+  - Trips:
+    - TEB–Palm Beach (PBI): 4 passengers, 4 bags, round trip, 5 days, 8 times a year
+    - TEB–Aspen (ASE): 6 passengers, 8 bags, round trip, 4 days, 4 times a year
+    - TEB–Los Angeles (VNY): 4 passengers, 4 bags, round trip, 3 days, 4 times a year
+    - TEB–Boston (BED): 3 passengers, 2 bags, round trip, same day, 10 times a year
+  - Charter out: 0 hours
+
+## How costs are calculated (plain English)
+
+### 1. Turning trips into flying
+For each jet and each trip:
+- **Distance:** the great-circle distance between the two airports.
+- **Fuel stop needed:** if the distance is more than the jet's range minus the safety margin. Number of stops = how many times the distance exceeds that usable range, rounded up, minus one.
+- **Flight time for one leg:** distance ÷ cruise speed, plus a taxi, climb and descent allowance per leg, plus the fuel-stop time for each stop.
+- **Legs flown:**
+  - Round trip with days at destination: the jet either waits at the destination (pilots' hotel and meals for each night, plus parking) or flies home empty and comes back to pick up. The app picks whichever costs less.
+  - Same-day round trip: two legs with passengers.
+  - One-way: one leg with passengers, plus one empty leg back to home base.
+  - Trip that doesn't start at home base: add an empty leg from home base to the start, and back at the end.
+- **Yearly totals:** hours with you onboard, empty hours, and charter hours (the user's input). Their sum is the jet's total yearly hours.
+
+### 2. Can the jet actually fly that much?
+- **Days out of service per year** = a base number of maintenance days + extra days for every 100 hours flown.
+- **Days the owner is using the jet** = for each trip, (days at destination + 1) × times per year.
+- **Most charter hours possible** = (365 − days out of service − days the owner is using it) × average charter hours per available day.
+- If the user's charter hours exceed this, the app uses the maximum and shows: "Limited to X charter hours by availability."
+- **Number of pilots:** 2. If total yearly hours exceed the threshold in the Library, 3.
+
+### 3. Yearly costs
+- **Fuel:** total yearly hours × the jet's fuel burn per hour × fuel price per gallon.
+- **Maintenance:** total yearly hours × the jet's maintenance cost per hour (labor and parts).
+- **Engine reserve:** total yearly hours × the jet's engine reserve per hour.
+- **Trip fees:** for every landing with you onboard or empty, a landing and handling fee, plus a fee for each fuel stop.
+- **Pilots' travel:** nights away × number of pilots on the trip (2) × the per-night hotel and meals amount.
+- **Pilots:** number of pilots × yearly salary × (1 + benefits share).
+- **Pilot training:** number of pilots × yearly training cost.
+- **Hangar, insurance, management fee, other fixed costs:** yearly amounts from the Library. Insurance = a hull rate × typical purchase price + a liability amount.
+- **Charter certificate costs:** a yearly amount, only if charter hours > 0.
+- **Charter income:** charter hours × the jet's charter rate per hour × the owner's share of charter revenue. Fuel, maintenance and engine reserve for charter hours are already counted in the costs above.
+
+### 4. Buying and selling
+- **Purchase price:** the typical price for the jet's most commonly sold build years (editable).
+- **Buying costs:** purchase price × buying-costs share (inspection, broker, legal), plus purchase price × sales tax share (default 0%, varies by state).
+- **Resale value after 5 years:** purchase price × (1 − yearly value loss) multiplied five times, minus extra value loss for hours flown above a typical owner's (applies mostly when chartering).
+- **Selling costs:** resale value × selling-costs share.
+- **Value lost:** purchase price + buying costs − (resale value − selling costs).
+
+### 5. The three numbers on every card
+- **5-year total cost** = value lost + 5 × (all yearly costs − charter income).
+- **Yearly out-of-pocket cost** = all yearly costs − charter income. It doesn't include buying or selling.
+- **Cost per hour you fly** = 5-year total cost ÷ (5 × hours with you onboard). Empty hours and charter hours aren't counted as your hours.
+
+### 6. Ranges
+- **Low** uses the favorable end of these assumptions together: purchase price, yearly value loss, fuel price, charter rate, owner's share of charter revenue. **High** uses the unfavorable end. Typical uses each typical value.
+- "The assumption that moves this jet's total the most" = re-run the 5-year total with each of those assumptions at its low and high while the rest stay typical, and name the one with the largest difference.
+
+### 7. Charter check
+Compare the user's charter hours with the measured yearly hours of jets of the same model flying for charter companies (from DATA.md):
+- Below the 25th percentile: **Conservative**
+- 25th to 75th percentile: **Typical**
+- Above the 75th percentile: **Aggressive**
+- No measured data: **No data**
+
+The economics always use the user's number. The check is a label, not a change.
+
+## Out of scope
+Financing, inflation, paint and interior refurbishment, avionics upgrades, taxes beyond sales tax, login and accounts.
