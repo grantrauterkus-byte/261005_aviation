@@ -38,7 +38,7 @@ export function ToneKey({ matrix }: { matrix: boolean }) {
       </span>
       {matrix ? (
         <span>
-          <i className="cmp-scale" /> Darker blue · better among the planes that fit
+          <i className="cmp-scale" /> Darker blue · further behind the best that fits (5% · 15% · 30% · 50%+)
         </span>
       ) : (
         <span className="muted">Rank · among the planes that fit</span>

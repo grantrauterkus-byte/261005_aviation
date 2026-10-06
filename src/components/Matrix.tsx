@@ -1,10 +1,10 @@
+import { Fragment } from 'react'
 import type { JetResult } from '../engine/index.ts'
 import { COLUMNS, failingColumns, type Column, type ColumnKey } from './columns.ts'
 import { ConfidenceBar, type ConfidenceOf } from './Certainty.tsx'
 
 interface Props {
   rows: JetResult[] // fitting jets first, in the current sort, then jets that do not fit
-  positions: Map<string, Partial<Record<ColumnKey, number>>>
   sort: { key: ColumnKey; dir: 'asc' | 'desc' }
   onSort: (key: ColumnKey) => void
   diff: boolean
@@ -14,15 +14,29 @@ interface Props {
 
 const GROUPS = [...new Set(COLUMNS.map((c) => c.group))]
 
-/** Comparison shade from 0 (worst) to 1 (best): five steps of one neutral blue, lighter to darker. */
-function shade(t: number | undefined) {
-  if (t == null) return ''
-  return `heat-${Math.min(4, Math.floor(t * 5))}`
+/** Gap steps for the shading: how far a value is behind the best plane that fits, as a share of the best value. */
+export const GAP_STEPS = [0.05, 0.15, 0.3, 0.5]
+
+/**
+ * Shading by how far a value is behind the best plane that fits: under 5% behind is not shaded,
+ * then four steps of one neutral blue up to 50% or more behind. Yes/no items: "No" where the best has "Yes" is the darkest step.
+ */
+function gapShade(c: Column, r: JetResult, fitting: JetResult[]): string {
+  if (!fitting.length) return ''
+  const vals = fitting.map((o) => c.value(o)).filter(Number.isFinite)
+  if (!vals.length) return ''
+  const best = c.better === 'lower' ? Math.min(...vals) : Math.max(...vals)
+  const v = c.value(r)
+  if (!Number.isFinite(v) || best <= 0) return ''
+  const gap = c.better === 'lower' ? (v - best) / best : (best - v) / best
+  const step = GAP_STEPS.filter((s) => gap >= s).length
+  return step ? `gap-${step}` : ''
 }
 
-/** Every element of every plane in one grid. Blue shading compares the planes within each column; red marks a failed need. */
-export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOpen }: Props) {
+/** Every element of every plane in one grid. Blue shading shows how far behind the best plane that fits; red marks a failed need. */
+export function Matrix({ rows, sort, onSort, diff, confidenceOf, onOpen }: Props) {
   const fitting = rows.filter((r) => r.fits)
+  const firstMiss = rows.findIndex((r) => !r.fits)
   // Difference view: each cost part against the lowest value among the jets that fit.
   const base = (c: Column) => {
     if (!diff || !c.diffable) return undefined
@@ -59,11 +73,18 @@ export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOp
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => {
-            const pos = positions.get(r.jet.id) ?? {}
+          {rows.map((r, i) => {
             const failing = failingColumns(r)
             return (
-              <tr key={r.jet.id} className={r.fits ? '' : 'greyed'} onClick={() => onOpen(r.jet.id)}>
+              <Fragment key={r.jet.id}>
+              {i === firstMiss && (
+                <tr className="divider-row">
+                  <td colSpan={COLUMNS.length + 1}>
+                    <span>Do not fit · {rows.length - firstMiss}</span>
+                  </td>
+                </tr>
+              )}
+              <tr className={r.fits ? '' : 'no-fit-row'} onClick={() => onOpen(r.jet.id)}>
                 <th scope="row" className="jet-col">
                   <button type="button" className="jet-link" onClick={() => onOpen(r.jet.id)}>
                     <span className={`band-dot ${r.jet.class === 'Midsize' ? 'band-mid' : 'band-super'}`} aria-hidden="true" />
@@ -80,7 +101,8 @@ export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOp
                       </td>
                     )
                   }
-                  const fill = isFail ? 'cell-fail' : shade(pos[c.key])
+                  // Planes that do not fit are never shaded; only their failed needs are marked.
+                  const fill = isFail ? 'cell-fail' : r.fits ? gapShade(c, r, fitting) : ''
                   // A zero (for example no charter income) carries no uncertainty, so it is not hatched.
                   const low = confidenceOf(c.source(r)) === 'Low' && c.value(r) !== 0
                   const cls = [fill, low ? 'cell-hatch' : '', c.group === 'Cost parts, 5 years' ? 'part-col' : ''].join(' ')
@@ -91,6 +113,7 @@ export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOp
                   )
                 })}
               </tr>
+              </Fragment>
             )
           })}
         </tbody>

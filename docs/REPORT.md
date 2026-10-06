@@ -197,3 +197,11 @@ The owner did not want "better than the others" and "meets my need" sharing one 
 - **Ranks:** comparison with the other jets is shown as grey rank text in each cell (for example "2nd of 6") and in the expanded view.
 - **Matrix:** comparison shading is now one neutral blue, darker for better; failed needs stay red.
 - **Color key:** now reads "Meets your need · Fails your need", plus the blue scale in the matrix.
+
+## Follow-up: matrix shading by gap
+
+**The problem:** the matrix shading stretched each column's best-to-worst spread across the full scale. Small differences looked large, and jets that don't fit were pinned to the ends, so some columns looked fully colored.
+
+**Changed:**
+- **Shading:** each cell of a jet that fits is now shaded by how far it is behind the best jet that fits, as a share of the best value. There is no shade under 5%, then four steps at 5%, 15%, 30% and 50% or more.
+- **Jets that don't fit:** they sit below a "Do not fit · N" divider, in grey unshaded rows with a red edge. Only their failed needs are marked red.

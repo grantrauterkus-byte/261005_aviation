@@ -7,7 +7,7 @@ import { Matrix } from './Matrix.tsx'
 import { Chip, ToneKey } from './Chip.tsx'
 import { CertaintyKey, makeConfidenceOf } from './Certainty.tsx'
 import { makeNetScale } from './costParts.tsx'
-import { COLUMN, COLUMNS, positions as columnPositions, type ColumnKey } from './columns.ts'
+import { COLUMN, COLUMNS, type ColumnKey } from './columns.ts'
 
 interface Props {
   inputs: ScenarioInputs
@@ -48,7 +48,6 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
   }, [view])
 
   const all = useMemo(() => [...results.fitting, ...results.notFitting], [results])
-  const pos = useMemo(() => columnPositions(all), [all])
   const netScale = useMemo(() => makeNetScale(all), [all])
   const confidenceOf = useMemo(() => makeConfidenceOf(assumptions, changes), [assumptions, changes])
   const sorted = useMemo(() => {
@@ -151,7 +150,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
           ))}
         </div>
       ) : (
-        <Matrix rows={sorted} positions={pos} sort={sort} onSort={chooseSort} diff={diff} confidenceOf={confidenceOf} onOpen={setOpenJet} />
+        <Matrix rows={sorted} sort={sort} onSort={chooseSort} diff={diff} confidenceOf={confidenceOf} onOpen={setOpenJet} />
       )}
 
       {open && (

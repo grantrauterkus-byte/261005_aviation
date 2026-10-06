@@ -34,6 +34,10 @@
   --heat-3: #c3d6ee;
   --heat-4: #a6c1e4;
   --net-bar: #8a94a3;
+  --gap-1: #e6eef8;
+  --gap-2: #cbdbef;
+  --gap-3: #a9c3e4;
+  --gap-4: #84a7d6;
   --hatch: rgb(140 100 40 / 0.2);
   --conf-high: #2f8f5b;
   --conf-medium: #c9a227;
@@ -82,6 +86,10 @@
     --heat-3: #284268;
     --heat-4: #2e5183;
     --net-bar: #6b7686;
+    --gap-1: #1f2c3e;
+    --gap-2: #243a58;
+    --gap-3: #2b4a74;
+    --gap-4: #335b91;
     --hatch: rgb(230 190 120 / 0.18);
     --conf-high: #4fbf85;
     --conf-medium: #e0bf4f;
@@ -1668,4 +1676,53 @@ button.primary {
 }
 .matrix td.cell-fail {
   background: var(--fail-bg);
+}
+
+/* Matrix: shading by gap behind the best plane that fits (none under 5%) */
+.gap-1 {
+  background: var(--gap-1);
+}
+.gap-2 {
+  background: var(--gap-2);
+}
+.gap-3 {
+  background: var(--gap-3);
+}
+.gap-4 {
+  background: var(--gap-4);
+}
+.cmp-scale {
+  background: linear-gradient(90deg, var(--surface), var(--gap-4)) !important;
+}
+
+/* Planes that do not fit: a labeled divider, grey unshaded rows, a red edge on the name */
+.matrix tr.divider-row td {
+  background: var(--surface-2);
+  border-top: 2px solid var(--fail-line);
+  padding: 6px 8px;
+  text-align: left;
+}
+.matrix tr.divider-row td span {
+  position: sticky;
+  left: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--fail-ink);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.matrix tr.no-fit-row td,
+.matrix tr.no-fit-row th {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.matrix tr.no-fit-row th.jet-col {
+  box-shadow: inset 4px 0 0 var(--fail-line);
+}
+.matrix tr.no-fit-row .jet-link {
+  color: var(--muted);
+}
+.matrix tr.no-fit-row td.cell-fail {
+  background: var(--fail-bg);
+  color: var(--fail-ink);
 }
