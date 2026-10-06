@@ -178,3 +178,5 @@ The owner asked that data quality not appear as one more chip, as if it were a f
 - **Fixes:** the expanded view could scroll sideways; that is stopped. The sources table now uses fixed column widths so source names stay readable.
 
 **Checked** in a browser with a throwaway login, removed afterwards: desktop and phone, no cut-off values, no errors. All 36 tests pass.
+
+**Then changed at the owner's request:** the segmented cost bar with hatched charter income was confusing. Each tile now has one plain bar for the 5-year total (after charter income), starting from $0 on the same scale for every tile. The total is written at the end of the bar, with a labeled axis in $ million below it. The cost parts are still in the expanded view.

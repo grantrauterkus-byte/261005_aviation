@@ -33,6 +33,7 @@
   --heat-2: #f7f7f2;
   --heat-3: #e3f3e8;
   --heat-4: #c9ead4;
+  --net-bar: #8a94a3;
   --hatch: rgb(140 100 40 / 0.2);
   --conf-high: #2f8f5b;
   --conf-medium: #c9a227;
@@ -80,6 +81,7 @@
     --heat-2: #222a35;
     --heat-3: #1d3a29;
     --heat-4: #1f4d32;
+    --net-bar: #6b7686;
     --hatch: rgb(230 190 120 / 0.18);
     --conf-high: #4fbf85;
     --conf-medium: #e0bf4f;
@@ -1485,61 +1487,75 @@ button.primary {
   opacity: 0.7;
 }
 
-.cost-bar {
+/* The 5-year total as one plain bar on a shared axis from $0 */
+.net {
   display: block;
-  height: 12px;
 }
-.cost-bar-fill {
+.net-plot {
   position: relative;
   display: flex;
-  height: 100%;
-  border-radius: 3px;
-  overflow: hidden;
+  align-items: center;
+  height: 18px;
 }
-.cost-bar-fill .seg {
+.net-bar {
   display: block;
-  height: 100%;
-  flex-basis: 0;
+  height: 12px;
+  background: var(--net-bar);
+  border-radius: 0 3px 3px 0;
 }
-.cost-bar-fill .seg + .seg {
-  border-left: 1px solid var(--surface);
+.net-value {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
-.cost-bar-income {
+.net-axis {
+  position: relative;
+  display: block;
+  height: 16px;
+  border-top: 1px solid var(--muted);
+  margin-top: 2px;
+}
+.net-tick {
   position: absolute;
   top: 0;
-  right: 0;
-  bottom: 0;
-  background: repeating-linear-gradient(135deg, var(--surface) 0 3px, transparent 3px 6px);
-  border-left: 2px solid var(--seg-income);
-}
-.tile.greyed .cost-bar {
-  opacity: 0.55;
-}
-.cost-key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  font-size: 12px;
+  transform: translateX(-50%);
+  font-size: 11px;
   color: var(--muted);
-  padding: 0 2px 2px;
+  padding-top: 3px;
+  font-variant-numeric: tabular-nums;
 }
-.cost-key-title {
-  font-weight: 600;
-  color: var(--text);
+.net-tick::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 1px;
+  height: 4px;
+  background: var(--muted);
 }
-.cost-key span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.net-tick:first-child {
+  transform: none;
 }
-.cost-key i {
-  width: 12px;
-  height: 10px;
-  border-radius: 2px;
-  display: inline-block;
+.net-tick:first-child::before {
+  left: 0;
 }
-.cost-key-income {
-  background: repeating-linear-gradient(135deg, var(--surface-2) 0 2px, var(--seg-income) 2px 4px);
+.net-tick:last-child {
+  transform: translateX(-100%);
+}
+.net-tick:last-child::before {
+  left: auto;
+  right: 0;
+}
+.net-unit {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
+.tile.greyed .net-bar {
+  opacity: 0.5;
 }
 
 /* Expanded view: one colored square per trip */

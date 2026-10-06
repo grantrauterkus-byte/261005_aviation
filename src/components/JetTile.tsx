@@ -2,7 +2,7 @@ import type { JetResult } from '../engine/index.ts'
 import { COLUMN, failingColumns, toneFor, type ColumnKey } from './columns.ts'
 import { Chip } from './Chip.tsx'
 import { CertaintyDots, type ConfidenceOf } from './Certainty.tsx'
-import { CostBar } from './costParts.tsx'
+import { NetBar, type NetScale } from './costParts.tsx'
 
 /** The same six columns, in the same place, on every tile. */
 const TILE_COLUMNS: ColumnKey[] = ['nonstop', 'range', 'seats', 'bags', 'cabinHeight', 'speed']
@@ -15,12 +15,12 @@ interface Props {
   result: JetResult
   position: Partial<Record<ColumnKey, number>>
   confidenceOf: ConfidenceOf
-  costScale: number
+  netScale: NetScale
   onOpen: () => void
 }
 
-/** One row per plane: class stripe, name, three figures, a cost bar to scale, and six fixed columns. Click opens the full view. */
-export function JetTile({ rank, result: r, position, confidenceOf, costScale, onOpen }: Props) {
+/** One row per plane: class stripe, name, three figures, the 5-year total as a bar on a shared axis, and six fixed columns. Click opens the full view. */
+export function JetTile({ rank, result: r, position, confidenceOf, netScale, onOpen }: Props) {
   const failing = failingColumns(r)
   // Seats and bag space show their need in the column itself, for example "7 · need 8".
   const reasonFor = (k: ColumnKey) => r.reasons.find((x) => (x.key === 'seats' && k === 'seats') || (x.key === 'bags' && k === 'bags'))
@@ -57,7 +57,7 @@ export function JetTile({ rank, result: r, position, confidenceOf, costScale, on
           </span>
         </span>
 
-        <CostBar r={r} max={costScale} />
+        <NetBar r={r} scale={netScale} />
 
         <span className="tile-cols">
           {TILE_COLUMNS.map((k) => {

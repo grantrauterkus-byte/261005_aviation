@@ -10,43 +10,41 @@ export const PARTS = [
   { key: 'tripFees', label: 'Trip fees', cls: 'seg-trip' },
 ] as const
 
-export const grossCost = (r: JetResult) => PARTS.reduce((s, p) => s + Math.max(0, r.breakdown[p.key]), 0)
-
-/**
- * One bar per plane on a shared dollar scale: its length is the plane's 5-year costs split into parts.
- * Charter income is laid over the end of the bar as a hatched section, so the solid part is the 5-year total.
- */
-export function CostBar({ r, max }: { r: JetResult; max: number }) {
-  const b = r.breakdown
-  const pct = (n: number) => `${(100 * Math.max(0, n)) / Math.max(1, max)}%`
-  const income = Math.min(b.charterIncome, grossCost(r))
-  return (
-    <span className="cost-bar" role="img" aria-label={`5-year costs: ${PARTS.map((p) => `${p.label} ${Math.round(b[p.key] / 1e5) / 10} million`).join(', ')}${income > 0 ? `, charter income minus ${Math.round(income / 1e5) / 10} million` : ''}`}>
-      <span className="cost-bar-fill" style={{ width: pct(grossCost(r)) }}>
-        {PARTS.map((p) => (
-          <span key={p.key} className={`seg ${p.cls}`} style={{ flexGrow: Math.max(0, b[p.key]) }} />
-        ))}
-        {income > 0 && <span className="cost-bar-income" style={{ width: `${(100 * income) / grossCost(r)}%` }} />}
-      </span>
-    </span>
-  )
+export interface NetScale {
+  max: number // dollars at the right end of the axis
+  ticks: number[]
 }
 
-/** Color key for the cost bars, shown once above the tiles. */
-export function CostKey({ withIncome }: { withIncome: boolean }) {
+/** One x axis for every card: from $0 to a round number of millions above the largest 5-year total. */
+export function makeNetScale(results: JetResult[]): NetScale {
+  const top = Math.max(1e6, ...results.map((r) => r.fiveYearTotal.typical))
+  const step = top > 16e6 ? 4e6 : top > 8e6 ? 2e6 : 1e6
+  const max = Math.ceil(top / step) * step
+  const ticks: number[] = []
+  for (let v = 0; v <= max + 1; v += step) ticks.push(v)
+  return { max, ticks }
+}
+
+const millions = (n: number) => `$${(n / 1e6).toFixed(2)} million`
+
+/** The 5-year total as one plain bar from zero, with its value at the end and a labeled axis below. */
+export function NetBar({ r, scale }: { r: JetResult; scale: NetScale }) {
+  const total = Math.max(0, r.fiveYearTotal.typical)
+  const pct = (v: number) => `${(100 * v) / scale.max}%`
   return (
-    <div className="cost-key" aria-label="Cost bar key">
-      <span className="cost-key-title">5-year costs, to scale</span>
-      {PARTS.map((p) => (
-        <span key={p.key}>
-          <i className={p.cls} /> {p.label}
-        </span>
-      ))}
-      {withIncome && (
-        <span>
-          <i className="cost-key-income" /> Charter income
-        </span>
-      )}
-    </div>
+    <span className="net">
+      <span className="net-plot">
+        <span className="net-bar" style={{ width: pct(total) }} />
+        <span className="net-value">{millions(total)}</span>
+      </span>
+      <span className="net-axis" aria-hidden="true">
+        {scale.ticks.map((t) => (
+          <span key={t} className="net-tick" style={{ left: pct(t) }}>
+            {t / 1e6}
+          </span>
+        ))}
+      </span>
+      <span className="net-unit">5-year total, $ million</span>
+    </span>
   )
 }
