@@ -59,17 +59,15 @@ Each one is in the code comments and, where it is a value, in the Library.
 
 ## Unresolved
 
-- **Netlify deploy is not finished.** The site "jet-ownership-finder" was created and `SUPABASE_URL` is set. Two things need the owner:
-  1. Add `SUPABASE_ANON_KEY` (the publishable key from Supabase → Project Settings → API) under Netlify → jet-ownership-finder → Project configuration → Environment variables. Claude could not read the key in this session.
-  2. The new site was created with "team login required" for visitors (Netlify's default for this team). Turn it off under Project configuration → Access & security → Visitor access, or ask Claude to do it, so the site is public like the owner's other two sites.
+- **Deployed:** https://jet-ownership-finder.netlify.app (Netlify project "jet-ownership-finder"). It builds from `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the publishable key). The owner added the key, because Claude was not allowed to read it in this session. Visitor login is off, so the site is public. The same browser check as above was run on the live site and passed. The service role key is not in the live code.
 - **No jet is greyed out in the default demo scenario.** With 6 seats, 20 cubic feet of bags and sea-level runway figures, all 10 jets fit. The greyed-out cards were checked with a must-have ticked instead. The demo scenario was left exactly as SPEC.md defines it.
 - **Palm Beach shows as "DJT".** OurAirports now lists KPBI with the code DJT (the airport was renamed). Searching "PBI", "KPBI" or "Palm Beach" finds it.
-- **One test scenario was saved** in the database during the browser check (id d723deb0-6774-495f-9f8f-eabb2b509fe1). It was left in place. Delete it only if the owner wants.
+- **Two test scenarios were saved** in the database by the browser checks, one locally and one on the live site (both named "Demo: New York owner"). They were left in place. Delete them only if the owner wants.
 - The app's JavaScript bundle is about 518 KB (151 KB compressed). Vite warns above 500 KB. It works, and it could be split later.
 
 ## Session summary
 
-Built the whole app per the Session 2 plan:
+Built and deployed the whole app per the Session 2 plan:
 
 - database
 - load script
@@ -77,4 +75,4 @@ Built the whole app per the Session 2 plan:
 - both screens
 - saving scenarios by link
 
-All were checked locally in a browser. The deploy stopped at the last step: Netlify needs the Supabase anon key added by the owner, and the site's visitor login turned off. After that, one deploy command finishes it.
+It is live at https://jet-ownership-finder.netlify.app and was checked there in a browser. Left open: no jet is greyed out in the default demo, Palm Beach shows as "DJT", and two test scenarios are still in the database.
