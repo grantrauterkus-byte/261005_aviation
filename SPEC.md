@@ -56,9 +56,17 @@ Columns: Item, Jet (or "All jets" / "Midsize" / "Super-midsize"), Applies to (Pl
 - The original value and source are always shown, even when changed.
 - The purchase price for every jet is editable here and also directly on its card.
 
+## Access (invitation only)
+Added October 2026 at the owner's request.
+- Only people an admin has added can sign in. Nothing in the app or the database can be read without signing in.
+- An admin adds a person on the **People** screen by email, phone number or name. The app gives a temporary password, shown once, which the admin passes on. The person must choose their own password (at least 10 characters) the first time they sign in.
+- Admins can also give someone a new temporary password, or remove them, which deletes their saved scenarios.
+- No emails or texts are sent. Phone numbers and names are only used as what the person types to sign in.
+- The first admin is the owner (grant.rauterkus@gmail.com).
+
 ## Scenarios (saving)
 - Everything the user enters (trips, requirements, charter hours, changed values) is a scenario.
-- A scenario is saved in the database and has its own link. Opening the link on any device shows that scenario. No login.
+- A scenario is saved in the database under the signed-in person and is private to them. "My scenarios" lists them. Each scenario has its own link, which opens it on any device where that person is signed in.
 - "New scenario" starts from the default. "Copy scenario" duplicates the current one.
 - The app opens with a default demo scenario:
   - Home base: Teterboro (TEB)
@@ -119,6 +127,6 @@ For each jet and each trip:
 - "The assumption that moves this jet's total the most" = re-run the 5-year total with each of those assumptions at its low and high while the rest stay typical, and name the one with the largest difference.
 
 ## Out of scope
-Financing, inflation, paint and interior refurbishment, avionics upgrades, taxes beyond sales tax, login and accounts.
+Financing, inflation, paint and interior refurbishment, avionics upgrades, taxes beyond sales tax, self sign-up.
 
 Checking the user's charter hours against measured flight hours of charter jets was considered and dropped (October 2026). OpenSky's daily request limit allows about 130 requests, the full pull needed about 55,000, and the result would only have produced a label, not changed any cost.

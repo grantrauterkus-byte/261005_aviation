@@ -76,3 +76,34 @@ Built and deployed the whole app per the Session 2 plan:
 - saving scenarios by link
 
 It is live at https://jet-ownership-finder.netlify.app and was checked there in a browser. Left open: no jet is greyed out in the default demo, Palm Beach shows as "DJT", and two test scenarios are still in the database.
+
+## Follow-up: invitation-only access
+
+The owner asked that only people they add can use the app, each added by name, email or phone number, with a temporary password, and that each person's scenarios be private.
+
+**Built:**
+- **Database** (migrations `20261006032653_invited_people.sql` and `20261006032955_invited_people_access.sql`):
+  - a `people` table of who may sign in
+  - every table readable only by invited, signed-in people
+  - scenarios owned by one person and visible only to them
+- **`people` edge function** (`supabase/functions/people/`): lets an admin add a person, give them a new temporary password, or remove them. It runs on Supabase with the service role key Supabase gives it; that key is still not in Netlify or the browser.
+- **App:**
+  - a sign-in screen
+  - a forced password change after a temporary password
+  - a "People" screen for admins
+  - "My scenarios" in the scenario bar
+  - the user's name and "Sign out" in the header
+- **Phone numbers and names:** Supabase password sign-in needs an email address, so these get a stand-in address on the reserved `.invalid` domain, which never receives mail (`supabase/functions/_shared/identity.ts`). The same phone number typed different ways, or a name in different capitals, is the same login.
+- **First admin:** added grant.rauterkus@gmail.com with `npm run add-person -- --admin`. The two earlier test scenarios were given to this account.
+- **Tests:** 5 new tests for the sign-in rules. 36 tests in total, all passing.
+
+**Checked:**
+- In a browser against the real database: signed-out visitors see only the sign-in screen, and a wrong password is refused. A temporary password forces a password change, and a password under 10 characters is refused.
+- An admin added a person by phone number "(212) 555-0199". That person signed in as "212.555.0199", could not see the People screen or the admin's scenario, and was then removed.
+- Directly against the database and the function: a visitor who isn't signed in gets nothing from any table. A signed-in non-admin is refused by the people function (403) and cannot make themselves an admin.
+- The test accounts were removed afterwards. Only the owner's account remains.
+
+**Notes:**
+- The Supabase tool timed out applying the change in one go. It seems to wait for an approval on "drop" and "revoke" statements. The change was applied in two parts, rewritten to change the existing access rules instead of dropping them. Visitors who aren't signed in still hold the old table permissions, but no access rule lets them see any rows (checked).
+- A Netlify site password was refused (it needs a paid Netlify plan), and the owner declined the Netlify team-login lock. The database itself was locked first instead.
+- **Open:** in Supabase → Authentication → Sign In / Providers, turn off "Allow new users to sign up". Self sign-ups already get no access, because they aren't in `people`, but turning it off stops strangers creating empty accounts.

@@ -45,6 +45,19 @@ export interface StoredScenario {
   updated_at: string
 }
 
+export interface ScenarioSummary {
+  id: string
+  name: string
+  updated_at: string
+}
+
+/** The signed-in person's scenarios, newest first. The database returns only their own. */
+export async function listMyScenarios(): Promise<ScenarioSummary[]> {
+  const { data, error } = await supabase.from('scenarios').select('id,name,updated_at').order('updated_at', { ascending: false }).limit(200)
+  if (error) throw error
+  return data as ScenarioSummary[]
+}
+
 export async function getScenario(id: string): Promise<StoredScenario | null> {
   const { data, error } = await supabase.rpc('get_scenario', { p_id: id })
   if (error) throw error

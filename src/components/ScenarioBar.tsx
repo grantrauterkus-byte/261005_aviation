@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ScenarioSummary } from '../lib/data.ts'
 
 export type SaveState = 'unsaved' | 'saving' | 'saved' | 'error'
 
@@ -9,9 +10,11 @@ interface Props {
   onRename: (name: string) => void
   onNew: () => void
   onCopy: () => void
+  scenarios: ScenarioSummary[]
+  onOpen: (id: string) => void
 }
 
-export function ScenarioBar({ name, id, save, onRename, onNew, onCopy }: Props) {
+export function ScenarioBar({ name, id, save, onRename, onNew, onCopy, scenarios, onOpen }: Props) {
   const [copied, setCopied] = useState(false)
   const link = id ? `${window.location.origin}/s/${id}` : null
 
@@ -22,9 +25,9 @@ export function ScenarioBar({ name, id, save, onRename, onNew, onCopy }: Props) 
         ? 'Could not save. Changes will be retried with your next edit.'
         : id
           ? save === 'saved'
-            ? 'Saved. Anyone with the link can open and change it.'
+            ? 'Saved to your account. Only you can open it.'
             : 'Saving…'
-          : 'Demo scenario. Your first change saves it under its own link.'
+          : 'Demo scenario. Your first change saves it to your account.'
 
   const copyLink = async () => {
     if (!link) return
@@ -44,11 +47,24 @@ export function ScenarioBar({ name, id, save, onRename, onNew, onCopy }: Props) 
           <span className="label">Scenario</span>
           <input value={name} maxLength={200} onChange={(e) => onRename(e.target.value)} />
         </label>
+        {scenarios.length > 0 && (
+          <label className="my-scenarios">
+            <span className="label">My scenarios</span>
+            <select value={id ?? ''} onChange={(e) => e.target.value && onOpen(e.target.value)}>
+              {!id && <option value="">Choose a saved scenario</option>}
+              {scenarios.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} · {new Date(s.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <p className={`save-status ${save}`} role="status">
           {status}
         </p>
         <div className="scenario-actions">
-          <button type="button" onClick={copyLink} disabled={!link} title={link ?? 'Make a change first to save this scenario'}>
+          <button type="button" onClick={copyLink} disabled={!link} title={link ? 'A link to open this scenario on another device. Only you can open it.' : 'Make a change first to save this scenario'}>
             {copied ? 'Link copied' : 'Copy link'}
           </button>
           <button type="button" onClick={onCopy}>

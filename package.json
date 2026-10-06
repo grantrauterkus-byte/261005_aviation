@@ -9,7 +9,8 @@
     "test": "vitest run",
     "lint": "oxlint",
     "preview": "vite preview",
-    "load": "tsx scripts/load.ts"
+    "load": "tsx scripts/load.ts",
+    "add-person": "tsx scripts/add-person.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { calculate, defaultInputs, DEFAULT_SCENARIO_NAME, type Airport, type AssumptionRow, type Changes, type Jet, type ScenarioInputs } from './engine/index.ts'
-import { createScenario, fetchAirports, fetchAssumptions, fetchJets, getScenario, updateScenario } from './lib/data.ts'
-import { supabaseConfigured } from './lib/supabase.ts'
+import { createScenario, fetchAirports, fetchAssumptions, fetchJets, getScenario, listMyScenarios, updateScenario, type ScenarioSummary } from './lib/data.ts'
+import { signOut, type Me } from './lib/auth.ts'
+import { AuthGate } from './components/AuthGate.tsx'
+import { People } from './components/People.tsx'
 import { FindMyJet } from './components/FindMyJet.tsx'
 import { Library } from './components/Library.tsx'
 import { ScenarioBar, type SaveState } from './components/ScenarioBar.tsx'
@@ -14,13 +16,18 @@ export interface Reference {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Shell />} />
-      <Route path="/library" element={<Shell />} />
-      <Route path="/s/:id" element={<Shell />} />
-      <Route path="/s/:id/library" element={<Shell />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <AuthGate>
+      {(me) => (
+        <Routes>
+          <Route path="/" element={<Shell me={me} />} />
+          <Route path="/library" element={<Shell me={me} />} />
+          <Route path="/people" element={me.is_admin ? <Shell me={me} /> : <Navigate to="/" replace />} />
+          <Route path="/s/:id" element={<Shell me={me} />} />
+          <Route path="/s/:id/library" element={<Shell me={me} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      )}
+    </AuthGate>
   )
 }
 
@@ -46,11 +53,12 @@ function normalize(inputs: Partial<ScenarioInputs>): ScenarioInputs {
   }
 }
 
-function Shell() {
+function Shell({ me }: { me: Me }) {
   const { id: routeId } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const view = location.pathname.endsWith('/library') ? 'library' : 'find'
+  const view = location.pathname.endsWith('/library') ? 'library' : location.pathname === '/people' ? 'people' : 'find'
+  const [myScenarios, setMyScenarios] = useState<ScenarioSummary[]>([])
 
   const [ref, setRef] = useState<Reference | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -63,14 +71,15 @@ function Shell() {
 
   // Reference data, once.
   useEffect(() => {
-    if (!supabaseConfigured) {
-      setLoadError('The app is not connected to its database.')
-      return
-    }
     Promise.all([fetchJets(), fetchAssumptions()])
       .then(([jets, assumptions]) => setRef({ jets, assumptions }))
       .catch((e) => setLoadError(String(e?.message ?? e)))
   }, [])
+
+  // The signed-in person's saved scenarios, refreshed whenever one is saved.
+  useEffect(() => {
+    if (save === 'saved' || save === 'unsaved') listMyScenarios().then(setMyScenarios).catch(() => {})
+  }, [save, scenario.id])
 
   // Scenario from the link.
   useEffect(() => {
@@ -132,7 +141,7 @@ function Shell() {
           creating.current = false
           setScenario((cur) => ({ ...cur, id: newId }))
           setSave('saved')
-          navigate(`/s/${newId}${view === 'library' ? '/library' : ''}${location.search}`, { replace: true })
+          if (view !== 'people') navigate(`/s/${newId}${view === 'library' ? '/library' : ''}${location.search}`, { replace: true })
           dirty.current = true // save anything changed while creating
           return
         }
@@ -218,17 +227,46 @@ function Shell() {
               Assumptions Library
               {Object.keys(scenario.changes).length > 0 && <span className="pill">{Object.keys(scenario.changes).length} changed</span>}
             </Link>
+            {me.is_admin && (
+              <Link className={view === 'people' ? 'tab active' : 'tab'} to="/people">
+                People
+              </Link>
+            )}
           </nav>
+          <div className="account">
+            <span className="muted">{me.display_name}</span>
+            <button
+              type="button"
+              className="link small"
+              onClick={async () => {
+                await signOut()
+                navigate('/')
+              }}
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 
-      <ScenarioBar name={scenario.name} id={scenario.id} save={save} onRename={rename} onNew={newScenario} onCopy={copyScenario} />
+      {view !== 'people' && (
+        <ScenarioBar
+          name={scenario.name}
+          id={scenario.id}
+          save={save}
+          onRename={rename}
+          onNew={newScenario}
+          onCopy={copyScenario}
+          scenarios={myScenarios}
+          onOpen={(id) => navigate(`/s/${id}${view === 'library' ? '/library' : ''}`)}
+        />
+      )}
 
       <main className="main">
         {loadError && <p className="notice error">Could not load the app's data: {loadError}</p>}
         {scenarioStatus === 'missing' && (
           <div className="notice">
-            <p>No scenario was found at this link.</p>
+            <p>No scenario was found at this link. Scenarios are private: you can open only your own.</p>
             <p>
               <Link to="/">Start from the demo scenario</Link>
             </p>
@@ -248,6 +286,7 @@ function Shell() {
             totalJets={ref.jets.length}
           />
         )}
+        {view === 'people' && me.is_admin && <People me={me} />}
         {ref && scenarioStatus === 'ready' && view === 'library' && (
           <Library rows={ref.assumptions} jets={ref.jets} changes={scenario.changes} setChange={setChange} resetAll={resetAll} results={results} />
         )}

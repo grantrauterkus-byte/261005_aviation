@@ -4,4 +4,6 @@ const url = import.meta.env.VITE_SUPABASE_URL as string
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
 export const supabaseConfigured = Boolean(url && anonKey)
-export const supabase = createClient(url || 'http://localhost', anonKey || 'missing', { auth: { persistSession: false } })
+export const supabase = createClient(url || 'http://localhost', anonKey || 'missing', {
+  auth: { persistSession: true, autoRefreshToken: true },
+})
