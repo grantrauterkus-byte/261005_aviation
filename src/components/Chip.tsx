@@ -1,14 +1,18 @@
 import type { Tone } from './columns.ts'
+import { CertaintyDots, type Level } from './Certainty.tsx'
 
 const TONE_WORD: Record<Tone, string> = { good: 'among the best', plain: '', low: 'among the lowest', fail: 'does not meet your need' }
 
 /** A labeled chip: the label in plain text, then the value. The color adds to the words, never replaces them. */
-export function Chip({ label, value, tone = 'plain', onClick }: { label: string; value: string; tone?: Tone; onClick?: () => void }) {
+export function Chip({ label, value, tone = 'plain', certainty, onClick }: { label: string; value: string; tone?: Tone; certainty?: Level | null; onClick?: () => void }) {
   const title = TONE_WORD[tone] ? `${label}: ${value} (${TONE_WORD[tone]})` : `${label}: ${value}`
   const body = (
     <>
       <span className="chip-k">{label}</span>
-      <span className="chip-v">{value}</span>
+      <span className="chip-v">
+        {value}
+        {certainty && <CertaintyDots level={certainty} />}
+      </span>
     </>
   )
   return onClick ? (

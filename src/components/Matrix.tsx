@@ -1,5 +1,6 @@
 import type { JetResult } from '../engine/index.ts'
-import { COLUMNS, failingColumns, toneFor, type Column, type ColumnKey } from './columns.ts'
+import { COLUMNS, failingColumns, type Column, type ColumnKey } from './columns.ts'
+import { ConfidenceBar, type ConfidenceOf } from './Certainty.tsx'
 
 interface Props {
   rows: JetResult[] // fitting jets first, in the current sort, then jets that do not fit
@@ -7,6 +8,7 @@ interface Props {
   sort: { key: ColumnKey; dir: 'asc' | 'desc' }
   onSort: (key: ColumnKey) => void
   diff: boolean
+  confidenceOf: ConfidenceOf
   onOpen: (jetId: string) => void
 }
 
@@ -19,7 +21,7 @@ function shade(t: number | undefined) {
 }
 
 /** Every element of every plane in one grid. Each column is shaded from best (green) to lowest (amber) within itself. */
-export function Matrix({ rows, positions, sort, onSort, diff, onOpen }: Props) {
+export function Matrix({ rows, positions, sort, onSort, diff, confidenceOf, onOpen }: Props) {
   const fitting = rows.filter((r) => r.fits)
   // Difference view: each cost part against the lowest value among the jets that fit.
   const base = (c: Column) => {
@@ -71,10 +73,19 @@ export function Matrix({ rows, positions, sort, onSort, diff, onOpen }: Props) {
                 </th>
                 {COLUMNS.map((c) => {
                   const isFail = failing.has(c.key)
-                  const fill = isFail ? 'cell-fail' : c.key === 'confidence' ? `cell-${toneFor(c, pos[c.key], false, r)}` : shade(pos[c.key])
-                  const cls = [fill, c.group === 'Cost parts, 5 years' ? 'part-col' : ''].join(' ')
+                  if (c.key === 'confidence') {
+                    return (
+                      <td key={c.key} className="conf-col">
+                        <ConfidenceBar r={r} />
+                      </td>
+                    )
+                  }
+                  const fill = isFail ? 'cell-fail' : shade(pos[c.key])
+                  // A zero (for example no charter income) carries no uncertainty, so it is not hatched.
+                  const low = confidenceOf(c.source(r)) === 'Low' && c.value(r) !== 0
+                  const cls = [fill, low ? 'cell-hatch' : '', c.group === 'Cost parts, 5 years' ? 'part-col' : ''].join(' ')
                   return (
-                    <td key={c.key} className={cls}>
+                    <td key={c.key} className={cls} title={low ? 'Confidence Low' : undefined}>
                       {c.cell(r, bases[c.key])}
                     </td>
                   )

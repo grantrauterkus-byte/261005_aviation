@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import type { Airport, AssumptionRow, Changes, JetResult } from '../engine/index.ts'
 import { money, moneyRange, num, rawValue } from '../lib/format.ts'
 import { Chip } from './Chip.tsx'
-import { COLUMN, COLUMNS, failingColumns, toneFor, type ColumnKey } from './columns.ts'
+import { COLUMNS, failingColumns, toneFor, type ColumnKey } from './columns.ts'
+import { CertaintyDots, ConfidenceBar, type ConfidenceOf } from './Certainty.tsx'
 
 interface Props {
   result: JetResult
   position: Partial<Record<ColumnKey, number>>
+  confidenceOf: ConfidenceOf
   rows: AssumptionRow[]
   changes: Changes
   airports: Map<string, Airport>
@@ -66,7 +68,7 @@ function PriceEdit({ r, changes, setChange }: Pick<Props, 'changes' | 'setChange
 }
 
 /** The expanded plane: every value, the cost parts, the flying, and the source of each number. */
-export function JetPanel({ result: r, position, rows, changes, airports, setChange, openLibrary, onClose }: Props) {
+export function JetPanel({ result: r, position, confidenceOf, rows, changes, airports, setChange, openLibrary, onClose }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     document.addEventListener('keydown', onKey)
@@ -118,9 +120,12 @@ export function JetPanel({ result: r, position, rows, changes, airports, setChan
             </div>
             <div className="stat">
               <span className="fig-k">Purchase price</span>
-              <button type="button" className={`fig-v value ${changes[r.sourceIds.purchase_price] !== undefined ? 'changed' : ''}`} onClick={() => openLibrary({ focus: r.sourceIds.purchase_price })}>
-                {money(r.specs.purchasePrice)}
-              </button>
+              <span className="nowrap">
+                <button type="button" className={`fig-v value ${changes[r.sourceIds.purchase_price] !== undefined ? 'changed' : ''}`} onClick={() => openLibrary({ focus: r.sourceIds.purchase_price })}>
+                  {money(r.specs.purchasePrice)}
+                </button>
+                <CertaintyDots level={confidenceOf(r.sourceIds.purchase_price)} />
+              </span>
               <PriceEdit r={r} changes={changes} setChange={setChange} />
             </div>
           </div>
@@ -133,7 +138,10 @@ export function JetPanel({ result: r, position, rows, changes, airports, setChan
               <Chip label="Biggest swing" value={`${r.biggestDriver.item.replace(/ \(.*\)$/, '')} · ${money(r.biggestDriver.difference)}`} tone="low" onClick={() => openLibrary({ focus: r.biggestDriver!.assumptionId })} />
             )}
             {t.charterLimited && <Chip label="Charter capped" value={`${t.charterHours} of ${t.charterHoursRequested} hours`} tone="low" />}
-            <Chip label={COLUMN.confidence.label} value={COLUMN.confidence.chip(r)} tone={toneFor(COLUMN.confidence, position.confidence, false, r)} />
+          </div>
+          <div className="panel-conf">
+            <span className="fig-k">Values rated High · Medium · Low, %</span>
+            <ConfidenceBar r={r} />
           </div>
 
           <section className="drawer-section">
@@ -195,6 +203,7 @@ export function JetPanel({ result: r, position, rows, changes, airports, setChan
                           ) : (
                             c.chip(r)
                           )}
+                          <CertaintyDots level={confidenceOf(src)} />
                         </td>
                       </tr>
                     )

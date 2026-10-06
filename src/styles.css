@@ -33,6 +33,12 @@
   --heat-2: #f7f7f2;
   --heat-3: #e3f3e8;
   --heat-4: #c9ead4;
+  --range-fill: #c9d8ee;
+  --range-line: #6f8fbf;
+  --hatch: rgb(140 100 40 / 0.2);
+  --conf-high: #2f8f5b;
+  --conf-medium: #c9a227;
+  --conf-low: #d0763f;
   --high: #1d7a46;
   --medium: #8a6a00;
   --low: #a33a2b;
@@ -76,6 +82,12 @@
     --heat-2: #222a35;
     --heat-3: #1d3a29;
     --heat-4: #1f4d32;
+    --range-fill: #2a3c58;
+    --range-line: #6f8fbf;
+    --hatch: rgb(230 190 120 / 0.18);
+    --conf-high: #4fbf85;
+    --conf-medium: #e0bf4f;
+    --conf-low: #e58a55;
     --high: #5cc98b;
     --medium: #e0bf4f;
     --low: #f08a7a;
@@ -1330,4 +1342,145 @@ button.primary {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+/* Data confidence: certainty dots, range bars on a shared scale, matrix hatch, stacked bar */
+
+.certainty {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.certainty i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+  display: inline-block;
+}
+.certainty i.on {
+  background: var(--text);
+  border-color: var(--text);
+}
+.certainty.c-low i.on {
+  background: var(--low-ink);
+  border-color: var(--low-ink);
+}
+.tile.greyed .certainty i.on {
+  background: var(--muted);
+  border-color: var(--muted);
+}
+
+/* The range bar sits inside each tile; the axis above the list uses the same insets so they line up. */
+.range-track {
+  position: relative;
+  display: block;
+  height: 12px;
+  margin: 2px 0 0;
+}
+.range-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+.range-span {
+  position: absolute;
+  top: 3px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--range-fill);
+  border: 1px solid var(--range-line);
+}
+.range-typical {
+  position: absolute;
+  top: 0;
+  width: 3px;
+  height: 12px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--text);
+}
+.tile.greyed .range-span {
+  opacity: 0.5;
+}
+.range-axis {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
+  padding: 4px 15px 4px 21px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.range-axis-label {
+  display: block;
+  margin-bottom: 2px;
+}
+.range-axis-track {
+  position: relative;
+  display: block;
+  height: 14px;
+}
+.range-axis-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-hatch {
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 7px);
+}
+.hatch-swatch {
+  background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 5px);
+}
+.certainty-key {
+  margin-left: 0;
+}
+
+.conf-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.conf-track {
+  display: inline-flex;
+  width: 90px;
+  height: 10px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.conf-track span {
+  display: block;
+  height: 100%;
+}
+.seg-high {
+  background: var(--conf-high);
+}
+.seg-medium {
+  background: var(--conf-medium);
+}
+.seg-low {
+  background: var(--conf-low);
+}
+.conf-nums {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.matrix td.conf-col {
+  text-align: left;
+}
+.panel-conf {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nowrap {
+  white-space: nowrap;
 }

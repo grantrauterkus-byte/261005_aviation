@@ -5,6 +5,7 @@ import { JetTile } from './JetTile.tsx'
 import { JetPanel } from './JetPanel.tsx'
 import { Matrix } from './Matrix.tsx'
 import { Chip, ToneKey } from './Chip.tsx'
+import { CertaintyKey, makeConfidenceOf, makeScale, RangeAxis } from './Certainty.tsx'
 import { COLUMN, COLUMNS, positions as columnPositions, type ColumnKey } from './columns.ts'
 
 interface Props {
@@ -47,6 +48,8 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
 
   const all = useMemo(() => [...results.fitting, ...results.notFitting], [results])
   const pos = useMemo(() => columnPositions(all), [all])
+  const scale = useMemo(() => makeScale(all.length ? all : []), [all])
+  const confidenceOf = useMemo(() => makeConfidenceOf(assumptions, changes), [assumptions, changes])
   const sorted = useMemo(() => {
     const c = COLUMN[sort.key]
     const by = (a: JetResult, b: JetResult) => {
@@ -122,6 +125,7 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
           </div>
         )}
         <ToneKey />
+        <CertaintyKey />
       </div>
 
       {results.warnings.map((w) => (
@@ -132,18 +136,28 @@ export function FindMyJet({ inputs, setInputs, results, airports, rememberAirpor
 
       {view === 'tiles' ? (
         <div className="tile-list">
+          {all.length > 0 && <RangeAxis scale={scale} />}
           {sorted.map((r) => (
-            <JetTile key={r.jet.id} rank={r.fits ? sorted.filter((x) => x.fits).indexOf(r) + 1 : null} result={r} position={pos.get(r.jet.id) ?? {}} onOpen={() => setOpenJet(r.jet.id)} />
+            <JetTile
+              key={r.jet.id}
+              rank={r.fits ? sorted.filter((x) => x.fits).indexOf(r) + 1 : null}
+              result={r}
+              position={pos.get(r.jet.id) ?? {}}
+              scale={scale}
+              confidenceOf={confidenceOf}
+              onOpen={() => setOpenJet(r.jet.id)}
+            />
           ))}
         </div>
       ) : (
-        <Matrix rows={sorted} positions={pos} sort={sort} onSort={chooseSort} diff={diff} onOpen={setOpenJet} />
+        <Matrix rows={sorted} positions={pos} sort={sort} onSort={chooseSort} diff={diff} confidenceOf={confidenceOf} onOpen={setOpenJet} />
       )}
 
       {open && (
         <JetPanel
           result={open}
           position={pos.get(open.jet.id) ?? {}}
+          confidenceOf={confidenceOf}
           rows={assumptions}
           changes={changes}
           airports={airports}

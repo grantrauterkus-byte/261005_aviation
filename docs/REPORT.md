@@ -155,3 +155,15 @@ The owner asked to replace the weakest values with defensible ones from public s
 **Blocked (not retried):** GlobalAir, Jettly and American Airlines pages.
 
 The worked example and its tests were updated: the Challenger 300's management fee change adds $97,500 over 5 years. All 36 tests pass, and the Library was reloaded into Supabase.
+
+## Follow-up: data confidence shown on the numbers
+
+The owner asked that data quality not appear as one more chip, as if it were a feature of the plane.
+
+**Built:**
+- **Range bars:** every tile now has a bar showing the 5-year total from low to high, with a tick at the typical value. All tiles share one dollar scale, labeled once above the list, so overlapping bars show where the ranking is not reliable.
+- **Certainty dots:** every value backed by a Library row carries three dots (three filled for High, two for Medium, one for Low). They appear on the tile chips, the purchase price and every row in the expanded view.
+- **Matrix:** cells resting on a Low-confidence row get a light diagonal hatch; zero values are not hatched. The data confidence column is now a stacked High, Medium and Low bar.
+- **Removed:** the "Data confidence" chip on the tiles.
+
+**Checked** in a browser with a throwaway login, removed afterwards: tiles, matrix, expanded view and phone width, with no errors. All 36 tests pass.
